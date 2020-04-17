@@ -44,8 +44,15 @@ install_php() {
     cd $(untar_path $install_type $version $tmp_download_dir)
 
     # apply patches
-    curl -sL 'http://www.nsl.tuis.ac.jp/DownLoad/SoftWare/PHP/php56.36-openssl11.patch' | patch -p1
-    patch -p1 <"${ASDF_DATA_DIR}/plugins/php/fix-php56-build.patch"
+    _IFS=${IFS}
+    IFS=.
+    versions=($version)
+    IFS=$_IFS
+
+    if [[ "${versions[0]}.${versions[1]}" == '5.6' && ${versions[2]} -ge 36 ]]; then
+      curl -sL 'http://www.nsl.tuis.ac.jp/DownLoad/SoftWare/PHP/php56.36-openssl11.patch' | patch -p1
+      patch -p1 <"${ASDF_DATA_DIR}/plugins/php/fix-php56-build.patch"
+    fi
 
     # Target is OS-specific
     # target=$(get_target)
