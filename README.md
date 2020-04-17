@@ -1,4 +1,31 @@
 <div align="center">
+PHP5.6がビルドできない問題を何とか解決しようと努力してみました。一応、PHP5.6.36以上であればビルドできるようになったと思います。
+
+**何か不都合があっても全て自己責任でお願いします。**
+
+**動作確認はLinux Mint 19.3でしかやってません。**
+
+## オリジナルからの変更点
+* どうやらPHP5.6はOpenSSL-1.0でないとビルドできないようなので、OpenSSL-1.1に対応させるパッチを当てる処理を追加しました。
+  - [参考(http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?PHP)](http://www.nsl.tuis.ac.jp/xoops/modules/xpwiki/?PHP)
+* おそらく`ICU`まわりのバージョンの関係だと思いますが、`php-intl`をビルド中にコンパイルエラーになるので、対応するためのパッチを当てる処理を追加しました。
+  - 一応、ビルド後に`make test`したら全部パスしたようなのですが、本当にこれでいいのか（ベストなのか）は分かりません。
+
+## Prerequirements
+**オリジナルの方も要確認。**
+
+事前にインクルードパスを調整しておく必要があります。私の場合はLinuxbrewで`curl`を入れていてそちらを参照したいので下記のようにします。
+```sh
+sudo ln -s "$(brew --prefix curl)/include/curl" /usr/local/include/curl
+```
+
+普通に`apt`で入れた場合はどうなるのか確認していませんが、どこかで下記のようにすると見た記憶があります。
+```sh
+sudo ln -s /usr/lib/x86_64-linux-gnu/curl /usr/local/include/curl
+```
+
+<hr />
+
 <h1>asdf-php</h1>
 <span><a href="https://www.php.net">PHP</a> plugin for asdf version manager</span>
 </div>

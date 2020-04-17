@@ -1,0 +1,1950 @@
+diff --git a/ext/intl/breakiterator/breakiterator_class.cpp b/ext/intl/breakiterator/breakiterator_class.cpp
+index 7ca7e94c..7ae2bf5e 100644
+--- a/ext/intl/breakiterator/breakiterator_class.cpp
++++ b/ext/intl/breakiterator/breakiterator_class.cpp
+@@ -52,7 +52,7 @@ U_CFUNC	void breakiterator_object_create(zval *object,
+ 	UClassID classId = biter->getDynamicClassID();
+ 	zend_class_entry *ce;
+ 
+-	if (classId == RuleBasedBreakIterator::getStaticClassID()) {
++	if (classId == U_NAMESPACE_QUALIFIER RuleBasedBreakIterator::getStaticClassID()) {
+ 		ce = RuleBasedBreakIterator_ce_ptr;
+ 	} else if (classId == CodePointBreakIterator::getStaticClassID()) {
+ 		ce = CodePointBreakIterator_ce_ptr;
+diff --git a/ext/intl/breakiterator/breakiterator_class.h b/ext/intl/breakiterator/breakiterator_class.h
+index cc5d5125..c00fbbae 100644
+--- a/ext/intl/breakiterator/breakiterator_class.h
++++ b/ext/intl/breakiterator/breakiterator_class.h
+@@ -25,7 +25,7 @@
+ #include "../intl_data.h"
+ 
+ #ifndef USE_BREAKITERATOR_POINTER
+-typedef void BreakIterator;
++typedef void U_NAMESPACE_QUALIFIER BreakIterator;
+ #endif
+ 
+ typedef struct {
+@@ -35,7 +35,7 @@ typedef struct {
+ 	intl_error  err;
+ 
+ 	// ICU break iterator
+-	BreakIterator*	biter;
++	U_NAMESPACE_QUALIFIER BreakIterator*	biter;
+ 
+ 	// current text
+ 	zval *text;
+@@ -57,9 +57,9 @@ typedef struct {
+ 		RETURN_FALSE; \
+ 	}
+ 
+-void breakiterator_object_create(zval *object, BreakIterator *break_iter TSRMLS_DC);
++void breakiterator_object_create(zval *object, U_NAMESPACE_QUALIFIER BreakIterator *break_iter TSRMLS_DC);
+ 
+-void breakiterator_object_construct(zval *object, BreakIterator *break_iter TSRMLS_DC);
++void breakiterator_object_construct(zval *object, U_NAMESPACE_QUALIFIER BreakIterator *break_iter TSRMLS_DC);
+ 
+ void breakiterator_register_BreakIterator_class(TSRMLS_D);
+ 
+diff --git a/ext/intl/breakiterator/breakiterator_iterators.cpp b/ext/intl/breakiterator/breakiterator_iterators.cpp
+index 7065ec67..d58805f6 100644
+--- a/ext/intl/breakiterator/breakiterator_iterators.cpp
++++ b/ext/intl/breakiterator/breakiterator_iterators.cpp
+@@ -36,7 +36,7 @@ static zend_object_handlers IntlPartsIterator_handlers;
+ 
+ /* BreakIterator's iterator */
+ 
+-inline BreakIterator *_breakiter_prolog(zend_object_iterator *iter TSRMLS_DC)
++inline U_NAMESPACE_QUALIFIER BreakIterator *_breakiter_prolog(zend_object_iterator *iter TSRMLS_DC)
+ {
+ 	BreakIterator_object *bio;
+ 	bio = (BreakIterator_object*)zend_object_store_get_object(
+@@ -57,7 +57,7 @@ static void _breakiterator_destroy_it(zend_object_iterator *iter TSRMLS_DC)
+ 
+ static void _breakiterator_move_forward(zend_object_iterator *iter TSRMLS_DC)
+ {
+-	BreakIterator *biter = _breakiter_prolog(iter TSRMLS_CC);
++	U_NAMESPACE_QUALIFIER BreakIterator *biter = _breakiter_prolog(iter TSRMLS_CC);
+ 	zoi_with_current *zoi_iter = (zoi_with_current*)iter;
+ 
+ 	iter->funcs->invalidate_current(iter TSRMLS_CC);
+@@ -67,7 +67,7 @@ static void _breakiterator_move_forward(zend_object_iterator *iter TSRMLS_DC)
+ 	}
+ 
+ 	int32_t pos = biter->next();
+-	if (pos != BreakIterator::DONE) {
++	if (pos != U_NAMESPACE_QUALIFIER BreakIterator::DONE) {
+ 		MAKE_STD_ZVAL(zoi_iter->current);
+ 		ZVAL_LONG(zoi_iter->current, (long)pos);
+ 	} //else we've reached the end of the enum, nothing more is required
+@@ -75,7 +75,7 @@ static void _breakiterator_move_forward(zend_object_iterator *iter TSRMLS_DC)
+ 
+ static void _breakiterator_rewind(zend_object_iterator *iter TSRMLS_DC)
+ {
+-	BreakIterator *biter = _breakiter_prolog(iter TSRMLS_CC);
++	U_NAMESPACE_QUALIFIER BreakIterator *biter = _breakiter_prolog(iter TSRMLS_CC);
+ 	zoi_with_current *zoi_iter = (zoi_with_current*)iter;
+ 
+ 	int32_t pos = biter->first();
+@@ -104,7 +104,7 @@ U_CFUNC zend_object_iterator *_breakiterator_get_iterator(
+ 	}
+ 
+ 	bio = (BreakIterator_object*)zend_object_store_get_object(object TSRMLS_CC);
+-	BreakIterator *biter = bio->biter;
++	U_NAMESPACE_QUALIFIER BreakIterator *biter = bio->biter;
+ 
+ 	if (biter == NULL) {
+ 		zend_throw_exception(NULL,
+@@ -156,11 +156,11 @@ static void _breakiterator_parts_move_forward(zend_object_iterator *iter TSRMLS_
+ 			next;
+ 
+ 	cur = bio->biter->current();
+-	if (cur == BreakIterator::DONE) {
++	if (cur == U_NAMESPACE_QUALIFIER BreakIterator::DONE) {
+ 		return;
+ 	}
+ 	next = bio->biter->next();
+-	if (next == BreakIterator::DONE) {
++	if (next == U_NAMESPACE_QUALIFIER BreakIterator::DONE) {
+ 		return;
+ 	}
+ 
+@@ -177,7 +177,7 @@ static void _breakiterator_parts_move_forward(zend_object_iterator *iter TSRMLS_
+ 				len;
+ 	char		*res;
+ 
+-	if (next == BreakIterator::DONE) {
++	if (next == U_NAMESPACE_QUALIFIER BreakIterator::DONE) {
+ 		next = slen;
+ 	}
+ 	assert(next <= slen && next >= cur);
+diff --git a/ext/intl/breakiterator/breakiterator_methods.cpp b/ext/intl/breakiterator/breakiterator_methods.cpp
+index 1a1b4fd1..4f11e429 100644
+--- a/ext/intl/breakiterator/breakiterator_methods.cpp
++++ b/ext/intl/breakiterator/breakiterator_methods.cpp
+@@ -41,7 +41,7 @@ U_CFUNC PHP_METHOD(BreakIterator, __construct)
+ }
+ 
+ static void _breakiter_factory(const char *func_name,
+-							   BreakIterator *(*func)(const Locale&, UErrorCode&),
++							   BreakIterator *(*func)(const U_NAMESPACE_QUALIFIER Locale&, UErrorCode&),
+ 							   INTERNAL_FUNCTION_PARAMETERS)
+ {
+ 	BreakIterator	*biter;
+@@ -63,7 +63,7 @@ static void _breakiter_factory(const char *func_name,
+ 		locale_str = intl_locale_get_default(TSRMLS_C);
+ 	}
+ 
+-	biter = func(Locale::createFromName(locale_str), status);
++	biter = func(U_NAMESPACE_QUALIFIER Locale::createFromName(locale_str), status);
+ 	intl_error_set_code(NULL, status TSRMLS_CC);
+ 	if (U_FAILURE(status)) {
+ 		spprintf(&msg, 0, "%s: error creating BreakIterator",
+@@ -375,7 +375,7 @@ U_CFUNC PHP_FUNCTION(breakiter_get_locale)
+ 
+ 	BREAKITER_METHOD_FETCH_OBJECT;
+ 
+-	Locale locale = bio->biter->getLocale((ULocDataLocaleType)locale_type,
++	U_NAMESPACE_QUALIFIER Locale locale = bio->biter->getLocale((ULocDataLocaleType)locale_type,
+ 		BREAKITER_ERROR_CODE(bio));
+ 	INTL_METHOD_CHECK_STATUS(bio,
+ 		"breakiter_get_locale: Call to ICU method has failed");
+diff --git a/ext/intl/breakiterator/codepointiterator_internal.cpp b/ext/intl/breakiterator/codepointiterator_internal.cpp
+index bf9239d5..b396a4c7 100644
+--- a/ext/intl/breakiterator/codepointiterator_internal.cpp
++++ b/ext/intl/breakiterator/codepointiterator_internal.cpp
+@@ -93,12 +93,12 @@ CodePointBreakIterator* CodePointBreakIterator::clone(void) const
+ 	return new CodePointBreakIterator(*this);
+ }
+ 
+-CharacterIterator& CodePointBreakIterator::getText(void) const
++U_NAMESPACE_QUALIFIER CharacterIterator& CodePointBreakIterator::getText(void) const
+ {
+ 	if (this->fCharIter == NULL) {
+ 		//this method is deprecated anyway; setup bogus iterator
+ 		static const UChar c = 0;
+-		this->fCharIter = new UCharCharacterIterator(&c, 0);
++		this->fCharIter = new U_NAMESPACE_QUALIFIER UCharCharacterIterator(&c, 0);
+ 	}
+ 
+ 	return *this->fCharIter;
+@@ -109,7 +109,7 @@ UText *CodePointBreakIterator::getUText(UText *fillIn, UErrorCode &status) const
+ 	return utext_clone(fillIn, this->fText, FALSE, TRUE, &status);
+ }
+ 
+-void CodePointBreakIterator::setText(const UnicodeString &text)
++void CodePointBreakIterator::setText(const U_NAMESPACE_QUALIFIER UnicodeString &text)
+ {
+ 	UErrorCode uec = UErrorCode();
+ 
+@@ -130,7 +130,7 @@ void CodePointBreakIterator::setText(UText *text, UErrorCode &status)
+ 	clearCurrentCharIter();
+ }
+ 
+-void CodePointBreakIterator::adoptText(CharacterIterator* it)
++void CodePointBreakIterator::adoptText(U_NAMESPACE_QUALIFIER CharacterIterator* it)
+ {
+ 	UErrorCode uec = UErrorCode();
+ 	clearCurrentCharIter();
+diff --git a/ext/intl/breakiterator/codepointiterator_internal.h b/ext/intl/breakiterator/codepointiterator_internal.h
+index 933347b8..7b0b32cd 100644
+--- a/ext/intl/breakiterator/codepointiterator_internal.h
++++ b/ext/intl/breakiterator/codepointiterator_internal.h
+@@ -26,7 +26,7 @@ namespace PHP {
+ 	class CodePointBreakIterator : public BreakIterator {
+ 
+ 	public:
+-		static UClassID getStaticClassID(); 
++		static UClassID getStaticClassID();
+ 
+ 		CodePointBreakIterator();
+ 
+@@ -42,15 +42,15 @@ namespace PHP {
+ 
+ 		virtual UClassID getDynamicClassID(void) const;
+ 
+-		virtual CharacterIterator& getText(void) const;
++		virtual U_NAMESPACE_QUALIFIER CharacterIterator& getText(void) const;
+ 
+ 		virtual UText *getUText(UText *fillIn, UErrorCode &status) const;
+ 
+-		virtual void setText(const UnicodeString &text);
++		virtual void setText(const U_NAMESPACE_QUALIFIER UnicodeString &text);
+ 
+ 		virtual void setText(UText *text, UErrorCode &status);
+ 
+-		virtual void adoptText(CharacterIterator* it);
++		virtual void adoptText(U_NAMESPACE_QUALIFIER CharacterIterator* it);
+ 
+ 		virtual int32_t first(void);
+ 
+@@ -84,7 +84,7 @@ namespace PHP {
+ 	private:
+ 		UText *fText;
+ 		UChar32 lastCodePoint;
+-		mutable CharacterIterator *fCharIter;
++		mutable U_NAMESPACE_QUALIFIER CharacterIterator *fCharIter;
+ 
+ 		inline void clearCurrentCharIter()
+ 		{
+diff --git a/ext/intl/breakiterator/rulebasedbreakiterator_methods.cpp b/ext/intl/breakiterator/rulebasedbreakiterator_methods.cpp
+index 454e5249..e51304dc 100644
+--- a/ext/intl/breakiterator/rulebasedbreakiterator_methods.cpp
++++ b/ext/intl/breakiterator/rulebasedbreakiterator_methods.cpp
+@@ -25,8 +25,8 @@ extern "C" {
+ 
+ #include "../intl_convertcpp.h"
+ 
+-static inline RuleBasedBreakIterator *fetch_rbbi(BreakIterator_object *bio) {
+-	return (RuleBasedBreakIterator*)bio->biter;
++static inline U_NAMESPACE_QUALIFIER RuleBasedBreakIterator *fetch_rbbi(BreakIterator_object *bio) {
++	return (U_NAMESPACE_QUALIFIER RuleBasedBreakIterator*)bio->biter;
+ }
+ 
+ static void _php_intlrbbi_constructor_body(INTERNAL_FUNCTION_PARAMETERS)
+@@ -46,10 +46,10 @@ static void _php_intlrbbi_constructor_body(INTERNAL_FUNCTION_PARAMETERS)
+ 	}
+ 
+ 	// instantiation of ICU object
+-	RuleBasedBreakIterator *rbbi;
++	U_NAMESPACE_QUALIFIER RuleBasedBreakIterator *rbbi;
+ 
+ 	if (!compiled) {
+-		UnicodeString	rulesStr;
++		U_NAMESPACE_QUALIFIER UnicodeString	rulesStr;
+ 		UParseError		parseError = UParseError();
+ 		if (intl_stringFromChar(rulesStr, rules, rules_len, &status)
+ 				== FAILURE) {
+@@ -59,7 +59,7 @@ static void _php_intlrbbi_constructor_body(INTERNAL_FUNCTION_PARAMETERS)
+ 			RETURN_NULL();
+ 		}
+ 
+-		rbbi = new RuleBasedBreakIterator(rulesStr, parseError, status);
++		rbbi = new U_NAMESPACE_QUALIFIER RuleBasedBreakIterator(rulesStr, parseError, status);
+ 		intl_error_set_code(NULL, status TSRMLS_CC);
+ 		if (U_FAILURE(status)) {
+ 			char *msg;
+@@ -75,7 +75,7 @@ static void _php_intlrbbi_constructor_body(INTERNAL_FUNCTION_PARAMETERS)
+ 		}
+ 	} else { // compiled
+ #if U_ICU_VERSION_MAJOR_NUM * 10 + U_ICU_VERSION_MINOR_NUM >= 48
+-		rbbi = new RuleBasedBreakIterator((uint8_t*)rules, rules_len, status);
++		rbbi = new U_NAMESPACE_QUALIFIER RuleBasedBreakIterator((uint8_t*)rules, rules_len, status);
+ 		if (U_FAILURE(status)) {
+ 			intl_error_set(NULL, status, "rbbi_create_instance: unable to "
+ 				"create instance from compiled rules", 0 TSRMLS_CC);
+@@ -119,7 +119,7 @@ U_CFUNC PHP_FUNCTION(rbbi_get_rules)
+ 
+ 	BREAKITER_METHOD_FETCH_OBJECT;
+ 
+-	const UnicodeString rules = fetch_rbbi(bio)->getRules();
++	const U_NAMESPACE_QUALIFIER UnicodeString rules = fetch_rbbi(bio)->getRules();
+ 
+ 	Z_TYPE_P(return_value) = IS_STRING;
+ 	if (intl_charFromString(rules, &Z_STRVAL_P(return_value),
+diff --git a/ext/intl/calendar/calendar_class.cpp b/ext/intl/calendar/calendar_class.cpp
+index e1342509..02b666c1 100644
+--- a/ext/intl/calendar/calendar_class.cpp
++++ b/ext/intl/calendar/calendar_class.cpp
+@@ -41,13 +41,13 @@ zend_object_handlers Calendar_handlers;
+ /* }}} */
+ 
+ U_CFUNC	void calendar_object_create(zval *object,
+-									Calendar *calendar TSRMLS_DC)
++									U_NAMESPACE_QUALIFIER Calendar *calendar TSRMLS_DC)
+ {
+ 	UClassID classId = calendar->getDynamicClassID();
+ 	zend_class_entry *ce;
+ 
+ 	//if (dynamic_cast<GregorianCalendar*>(calendar) != NULL) {
+-	if (classId == GregorianCalendar::getStaticClassID()) {
++	if (classId == U_NAMESPACE_QUALIFIER GregorianCalendar::getStaticClassID()) {
+ 		ce = GregorianCalendar_ce_ptr;
+ 	} else {
+ 		ce = Calendar_ce_ptr;
+@@ -57,7 +57,7 @@ U_CFUNC	void calendar_object_create(zval *object,
+ 	calendar_object_construct(object, calendar TSRMLS_CC);
+ }
+ 
+-U_CFUNC Calendar *calendar_fetch_native_calendar(zval *object TSRMLS_DC)
++U_CFUNC U_NAMESPACE_QUALIFIER Calendar *calendar_fetch_native_calendar(zval *object TSRMLS_DC)
+ {
+ 	Calendar_object *co = (Calendar_object*)
+ 			zend_object_store_get_object(object TSRMLS_CC);
+@@ -66,13 +66,13 @@ U_CFUNC Calendar *calendar_fetch_native_calendar(zval *object TSRMLS_DC)
+ }
+ 
+ U_CFUNC void calendar_object_construct(zval *object,
+-									   Calendar *calendar TSRMLS_DC)
++									   U_NAMESPACE_QUALIFIER Calendar *calendar TSRMLS_DC)
+ {
+ 	Calendar_object *co;
+ 
+ 	CALENDAR_METHOD_FETCH_OBJECT_NO_CHECK; //populate to from object
+ 	assert(co->ucal == NULL);
+-	co->ucal = (Calendar*)calendar;
++	co->ucal = (U_NAMESPACE_QUALIFIER Calendar*)calendar;
+ }
+ 
+ /* {{{ clone handler for Calendar */
+@@ -93,7 +93,7 @@ static zend_object_value Calendar_clone_obj(zval *object TSRMLS_DC)
+ 		&co_orig->zo, Z_OBJ_HANDLE_P(object) TSRMLS_CC);
+ 
+ 	if (co_orig->ucal != NULL) {
+-		Calendar	*newCalendar;
++		U_NAMESPACE_QUALIFIER Calendar	*newCalendar;
+ 
+ 		newCalendar = co_orig->ucal->clone();
+ 		if (!newCalendar) {
+@@ -151,7 +151,7 @@ static HashTable *Calendar_get_debug_info(zval *object, int *is_temp TSRMLS_DC)
+ 	zval			zv = zval_used_for_init,
+ 					*zfields;
+ 	Calendar_object	*co;
+-	const Calendar	*cal;
++	const U_NAMESPACE_QUALIFIER Calendar	*cal;
+ 	
+ 	*is_temp = 1;
+ 
+@@ -188,7 +188,7 @@ static HashTable *Calendar_get_debug_info(zval *object, int *is_temp TSRMLS_DC)
+ 
+ 	{
+ 		UErrorCode	uec		= U_ZERO_ERROR;
+-		Locale		locale	= cal->getLocale(ULOC_VALID_LOCALE, uec);
++		U_NAMESPACE_QUALIFIER Locale		locale	= cal->getLocale(ULOC_VALID_LOCALE, uec);
+ 		if (U_SUCCESS(uec)) {
+ 			add_assoc_string_ex(&zv, "locale", sizeof("locale"),
+ 				const_cast<char*>(locale.getName()), 1);
+diff --git a/ext/intl/calendar/calendar_class.h b/ext/intl/calendar/calendar_class.h
+index 140389b6..eff2ff68 100644
+--- a/ext/intl/calendar/calendar_class.h
++++ b/ext/intl/calendar/calendar_class.h
+@@ -35,7 +35,7 @@ typedef struct {
+ 	intl_error  err;
+ 
+ 	// ICU calendar
+-	Calendar*	ucal;
++	U_NAMESPACE_QUALIFIER Calendar*	ucal;
+ } Calendar_object;
+ 
+ #define CALENDAR_ERROR(co)		(co)->err
+@@ -54,11 +54,11 @@ typedef struct {
+ 		RETURN_FALSE; \
+ 	}
+ 
+-void calendar_object_create(zval *object, Calendar *calendar TSRMLS_DC);
++void calendar_object_create(zval *object, U_NAMESPACE_QUALIFIER Calendar *calendar TSRMLS_DC);
+ 
+-Calendar *calendar_fetch_native_calendar(zval *object TSRMLS_DC);
++U_NAMESPACE_QUALIFIER Calendar *calendar_fetch_native_calendar(zval *object TSRMLS_DC);
+ 
+-void calendar_object_construct(zval *object, Calendar *calendar TSRMLS_DC);
++void calendar_object_construct(zval *object, U_NAMESPACE_QUALIFIER Calendar *calendar TSRMLS_DC);
+ 
+ void calendar_register_IntlCalendar_class(TSRMLS_D);
+ 
+diff --git a/ext/intl/calendar/calendar_methods.cpp b/ext/intl/calendar/calendar_methods.cpp
+index ae7d0093..ab0363f1 100644
+--- a/ext/intl/calendar/calendar_methods.cpp
++++ b/ext/intl/calendar/calendar_methods.cpp
+@@ -52,7 +52,7 @@ U_CFUNC PHP_FUNCTION(intlcal_create_instance)
+ 	zval		**zv_timezone	= NULL;
+ 	const char	*locale_str		= NULL;
+ 	int			dummy;
+-	TimeZone	*timeZone;
++	U_NAMESPACE_QUALIFIER TimeZone	*timeZone;
+ 	UErrorCode	status			= U_ZERO_ERROR;
+ 	intl_error_reset(NULL TSRMLS_CC);
+ 
+@@ -73,8 +73,8 @@ U_CFUNC PHP_FUNCTION(intlcal_create_instance)
+ 		locale_str = intl_locale_get_default(TSRMLS_C);
+ 	}
+ 
+-	Calendar *cal = Calendar::createInstance(timeZone,
+-		Locale::createFromName(locale_str), status);
++	U_NAMESPACE_QUALIFIER Calendar *cal = U_NAMESPACE_QUALIFIER Calendar::createInstance(timeZone,
++		U_NAMESPACE_QUALIFIER Locale::createFromName(locale_str), status);
+ 	if (cal == NULL) {
+ 		delete timeZone;
+ 		intl_error_set(NULL, status, "Error creating ICU Calendar object", 0 TSRMLS_CC);
+@@ -85,7 +85,7 @@ U_CFUNC PHP_FUNCTION(intlcal_create_instance)
+ }
+ 
+ #if U_ICU_VERSION_MAJOR_NUM * 10 + U_ICU_VERSION_MINOR_NUM >= 42
+-class BugStringCharEnumeration : public StringEnumeration
++class BugStringCharEnumeration : public U_NAMESPACE_QUALIFIER StringEnumeration
+ {
+ public:
+ 	BugStringCharEnumeration(UEnumeration* _uenum) : uenum(_uenum) {}
+@@ -99,7 +99,7 @@ public:
+ 		return uenum_count(uenum, &status);
+ 	}
+ 
+-	virtual const UnicodeString* snext(UErrorCode& status)
++	virtual const U_NAMESPACE_QUALIFIER UnicodeString* snext(UErrorCode& status)
+ 	{
+ 		int32_t length;
+ 		const UChar* str = uenum_unext(uenum, &length, &status);
+@@ -175,7 +175,7 @@ U_CFUNC PHP_FUNCTION(intlcal_get_keyword_values_for_locale)
+         RETURN_FALSE;
+     }
+ 
+-    StringEnumeration *se = new BugStringCharEnumeration(uenum);
++    U_NAMESPACE_QUALIFIER StringEnumeration *se = new BugStringCharEnumeration(uenum);
+ #endif
+ 
+ 	IntlIterator_from_StringEnumeration(se, return_value TSRMLS_CC);
+@@ -192,7 +192,7 @@ U_CFUNC PHP_FUNCTION(intlcal_get_now)
+ 		RETURN_FALSE;
+ 	}
+ 
+-	RETURN_DOUBLE((double)Calendar::getNow());
++	RETURN_DOUBLE((double)U_NAMESPACE_QUALIFIER Calendar::getNow());
+ }
+ 
+ U_CFUNC PHP_FUNCTION(intlcal_get_available_locales)
+@@ -206,16 +206,16 @@ U_CFUNC PHP_FUNCTION(intlcal_get_available_locales)
+ 	}
+ 
+ 	int32_t count;
+-	const Locale *availLocales = Calendar::getAvailableLocales(count);
++	const U_NAMESPACE_QUALIFIER Locale *availLocales = U_NAMESPACE_QUALIFIER Calendar::getAvailableLocales(count);
+ 	array_init(return_value);
+ 	for (int i = 0; i < count; i++) {
+-		Locale locale = availLocales[i];
++		U_NAMESPACE_QUALIFIER Locale locale = availLocales[i];
+ 		add_next_index_string(return_value, locale.getName(), 1);
+ 	}
+ }
+ 
+ static void _php_intlcal_field_uec_ret_in32t_method(
+-		int32_t (Calendar::*func)(UCalendarDateFields, UErrorCode&) const,
++		int32_t (U_NAMESPACE_QUALIFIER Calendar::*func)(UCalendarDateFields, UErrorCode&) const,
+ 		const char *method_name,
+ 		INTERNAL_FUNCTION_PARAMETERS)
+ {
+@@ -249,7 +249,7 @@ static void _php_intlcal_field_uec_ret_in32t_method(
+ 
+ U_CFUNC PHP_FUNCTION(intlcal_get)
+ {
+-	_php_intlcal_field_uec_ret_in32t_method(&Calendar::get,
++	_php_intlcal_field_uec_ret_in32t_method(&U_NAMESPACE_QUALIFIER Calendar::get,
+ 		"intlcal_get", INTERNAL_FUNCTION_PARAM_PASSTHRU);
+ }
+ 
+@@ -328,7 +328,7 @@ U_CFUNC PHP_FUNCTION(intlcal_add)
+ U_CFUNC PHP_FUNCTION(intlcal_set_time_zone)
+ {
+ 	zval			*zv_timezone;
+-	TimeZone		*timeZone;
++	U_NAMESPACE_QUALIFIER TimeZone		*timeZone;
+ 	CALENDAR_METHOD_INIT_VARS;
+ 
+ 	if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(),
+@@ -357,7 +357,7 @@ U_CFUNC PHP_FUNCTION(intlcal_set_time_zone)
+ 
+ 
+ static void _php_intlcal_before_after(
+-		UBool (Calendar::*func)(const Calendar&, UErrorCode&) const,
++		UBool (U_NAMESPACE_QUALIFIER Calendar::*func)(const U_NAMESPACE_QUALIFIER Calendar&, UErrorCode&) const,
+ 		INTERNAL_FUNCTION_PARAMETERS)
+ {
+ 	zval			*when_object;
+@@ -390,12 +390,12 @@ static void _php_intlcal_before_after(
+ 
+ U_CFUNC PHP_FUNCTION(intlcal_after)
+ {
+-	_php_intlcal_before_after(&Calendar::after, INTERNAL_FUNCTION_PARAM_PASSTHRU);
++	_php_intlcal_before_after(&U_NAMESPACE_QUALIFIER Calendar::after, INTERNAL_FUNCTION_PARAM_PASSTHRU);
+ }
+ 
+ U_CFUNC PHP_FUNCTION(intlcal_before)
+ {
+-	_php_intlcal_before_after(&Calendar::before, INTERNAL_FUNCTION_PARAM_PASSTHRU);
++	_php_intlcal_before_after(&U_NAMESPACE_QUALIFIER Calendar::before, INTERNAL_FUNCTION_PARAM_PASSTHRU);
+ }
+ 
+ U_CFUNC PHP_FUNCTION(intlcal_set)
+@@ -602,13 +602,13 @@ U_CFUNC PHP_FUNCTION(intlcal_field_difference)
+ 
+ U_CFUNC PHP_FUNCTION(intlcal_get_actual_maximum)
+ {
+-	_php_intlcal_field_uec_ret_in32t_method(&Calendar::getActualMaximum,
++	_php_intlcal_field_uec_ret_in32t_method(&U_NAMESPACE_QUALIFIER Calendar::getActualMaximum,
+ 		"intlcal_get_actual_maximum", INTERNAL_FUNCTION_PARAM_PASSTHRU);
+ }
+ 
+ U_CFUNC PHP_FUNCTION(intlcal_get_actual_minimum)
+ {
+-	_php_intlcal_field_uec_ret_in32t_method(&Calendar::getActualMinimum,
++	_php_intlcal_field_uec_ret_in32t_method(&U_NAMESPACE_QUALIFIER Calendar::getActualMinimum,
+ 		"intlcal_get_actual_minimum", INTERNAL_FUNCTION_PARAM_PASSTHRU);
+ }
+ 
+@@ -663,7 +663,7 @@ U_CFUNC PHP_FUNCTION(intlcal_get_first_day_of_week)
+ }
+ 
+ static void _php_intlcal_field_ret_in32t_method(
+-		int32_t (Calendar::*func)(UCalendarDateFields) const,
++		int32_t (U_NAMESPACE_QUALIFIER Calendar::*func)(UCalendarDateFields) const,
+ 		const char *method_name,
+ 		INTERNAL_FUNCTION_PARAMETERS)
+ {
+@@ -696,13 +696,13 @@ static void _php_intlcal_field_ret_in32t_method(
+ 
+ U_CFUNC PHP_FUNCTION(intlcal_get_greatest_minimum)
+ {
+-	_php_intlcal_field_ret_in32t_method(&Calendar::getGreatestMinimum,
++	_php_intlcal_field_ret_in32t_method(&U_NAMESPACE_QUALIFIER Calendar::getGreatestMinimum,
+ 		"intlcal_get_greatest_minimum", INTERNAL_FUNCTION_PARAM_PASSTHRU);
+ }
+ 
+ U_CFUNC PHP_FUNCTION(intlcal_get_least_maximum)
+ {
+-	_php_intlcal_field_ret_in32t_method(&Calendar::getLeastMaximum,
++	_php_intlcal_field_ret_in32t_method(&U_NAMESPACE_QUALIFIER Calendar::getLeastMaximum,
+ 		"intlcal_get_least_maximum", INTERNAL_FUNCTION_PARAM_PASSTHRU);
+ }
+ 
+@@ -726,7 +726,7 @@ U_CFUNC PHP_FUNCTION(intlcal_get_locale)
+ 
+ 	CALENDAR_METHOD_FETCH_OBJECT;
+ 
+-	Locale locale = co->ucal->getLocale((ULocDataLocaleType)locale_type,
++	U_NAMESPACE_QUALIFIER Locale locale = co->ucal->getLocale((ULocDataLocaleType)locale_type,
+ 		CALENDAR_ERROR_CODE(co));
+ 	INTL_METHOD_CHECK_STATUS(co,
+ 		"intlcal_get_locale: Call to ICU method has failed");
+@@ -736,7 +736,7 @@ U_CFUNC PHP_FUNCTION(intlcal_get_locale)
+ 
+ U_CFUNC PHP_FUNCTION(intlcal_get_maximum)
+ {
+-	_php_intlcal_field_ret_in32t_method(&Calendar::getMaximum,
++	_php_intlcal_field_ret_in32t_method(&U_NAMESPACE_QUALIFIER Calendar::getMaximum,
+ 		"intlcal_get_maximum", INTERNAL_FUNCTION_PARAM_PASSTHRU);
+ }
+ 
+@@ -762,7 +762,7 @@ U_CFUNC PHP_FUNCTION(intlcal_get_minimal_days_in_first_week)
+ 
+ U_CFUNC PHP_FUNCTION(intlcal_get_minimum)
+ {
+-	_php_intlcal_field_ret_in32t_method(&Calendar::getMinimum,
++	_php_intlcal_field_ret_in32t_method(&U_NAMESPACE_QUALIFIER Calendar::getMinimum,
+ 		"intlcal_get_minimum", INTERNAL_FUNCTION_PARAM_PASSTHRU);
+ }
+ 
+@@ -779,7 +779,7 @@ U_CFUNC PHP_FUNCTION(intlcal_get_time_zone)
+ 
+ 	CALENDAR_METHOD_FETCH_OBJECT;
+ 
+-	TimeZone *tz = co->ucal->getTimeZone().clone();
++	U_NAMESPACE_QUALIFIER TimeZone *tz = co->ucal->getTimeZone().clone();
+ 	if (tz == NULL) {
+ 		intl_errors_set(CALENDAR_ERROR_P(co), U_MEMORY_ALLOCATION_ERROR,
+ 			"intlcal_get_time_zone: could not clone TimeZone", 0 TSRMLS_CC);
+@@ -1145,9 +1145,9 @@ U_CFUNC PHP_FUNCTION(intlcal_from_date_time)
+ 	php_date_obj	*datetime;
+ 	char			*locale_str			= NULL;
+ 	int				locale_str_len;
+-	TimeZone		*timeZone;
++	U_NAMESPACE_QUALIFIER TimeZone		*timeZone;
+ 	UErrorCode		status				= U_ZERO_ERROR;
+-	Calendar        *cal;
++	U_NAMESPACE_QUALIFIER Calendar        *cal;
+ 	intl_error_reset(NULL TSRMLS_CC);
+ 
+ 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "Z|s!",
+@@ -1189,7 +1189,7 @@ U_CFUNC PHP_FUNCTION(intlcal_from_date_time)
+ 	}
+ 
+ 	if (!datetime->time->is_localtime) {
+-		timeZone = TimeZone::getGMT()->clone();
++		timeZone = U_NAMESPACE_QUALIFIER TimeZone::getGMT()->clone();
+ 	} else {
+ 		timeZone = timezone_convert_datetimezone(datetime->time->zone_type,
+ 			datetime, 1, NULL, "intlcal_from_date_time" TSRMLS_CC);
+@@ -1202,8 +1202,8 @@ U_CFUNC PHP_FUNCTION(intlcal_from_date_time)
+ 		locale_str = const_cast<char*>(intl_locale_get_default(TSRMLS_C));
+ 	}
+ 
+-	cal = Calendar::createInstance(timeZone,
+-		Locale::createFromName(locale_str), status);
++	cal = U_NAMESPACE_QUALIFIER Calendar::createInstance(timeZone,
++		U_NAMESPACE_QUALIFIER Locale::createFromName(locale_str), status);
+ 	if (cal == NULL) {
+ 		delete timeZone;
+ 		intl_error_set(NULL, status, "intlcal_from_date_time: "
+@@ -1267,7 +1267,7 @@ U_CFUNC PHP_FUNCTION(intlcal_to_date_time)
+ 	ZVAL_STRINGL(&ts_zval, ts_str, ts_str_len, 0);
+ 
+ 	/* Now get the time zone */
+-	const TimeZone& tz = co->ucal->getTimeZone();
++	const U_NAMESPACE_QUALIFIER TimeZone& tz = co->ucal->getTimeZone();
+ 	zval *timezone_zval = timezone_convert_to_datetimezone(
+ 		&tz, CALENDAR_ERROR_P(co), "intlcal_to_date_time" TSRMLS_CC);
+ 	if (timezone_zval == NULL) {
+diff --git a/ext/intl/calendar/gregoriancalendar_methods.cpp b/ext/intl/calendar/gregoriancalendar_methods.cpp
+index 08b89496..2dfcaeeb 100644
+--- a/ext/intl/calendar/gregoriancalendar_methods.cpp
++++ b/ext/intl/calendar/gregoriancalendar_methods.cpp
+@@ -32,8 +32,8 @@ extern "C" {
+ #include <ext/date/php_date.h>
+ }
+ 
+-static inline GregorianCalendar *fetch_greg(Calendar_object *co) {
+-	return (GregorianCalendar*)co->ucal;
++static inline U_NAMESPACE_QUALIFIER GregorianCalendar *fetch_greg(Calendar_object *co) {
++	return (U_NAMESPACE_QUALIFIER GregorianCalendar*)co->ucal;
+ }
+ 
+ static void _php_intlgregcal_constructor_body(INTERNAL_FUNCTION_PARAMETERS)
+@@ -83,11 +83,11 @@ static void _php_intlgregcal_constructor_body(INTERNAL_FUNCTION_PARAMETERS)
+ 	}
+ 	
+ 	// instantion of ICU object
+-	GregorianCalendar *gcal = NULL;
++	U_NAMESPACE_QUALIFIER GregorianCalendar *gcal = NULL;
+ 
+ 	if (variant <= 2) {
+ 		// From timezone and locale (0 to 2 arguments)
+-		TimeZone *tz = timezone_process_timezone_argument(tz_object, NULL,
++		U_NAMESPACE_QUALIFIER TimeZone *tz = timezone_process_timezone_argument(tz_object, NULL,
+ 			"intlgregcal_create_instance" TSRMLS_CC);
+ 		if (tz == NULL) {
+ 			RETURN_NULL();
+@@ -96,7 +96,7 @@ static void _php_intlgregcal_constructor_body(INTERNAL_FUNCTION_PARAMETERS)
+ 			locale = const_cast<char*>(intl_locale_get_default(TSRMLS_C));
+ 		}
+ 		
+-		gcal = new GregorianCalendar(tz, Locale::createFromName(locale),
++		gcal = new U_NAMESPACE_QUALIFIER GregorianCalendar(tz, U_NAMESPACE_QUALIFIER Locale::createFromName(locale),
+ 			status);
+ 		if (U_FAILURE(status)) {
+ 			intl_error_set(NULL, status, "intlgregcal_create_instance: error "
+@@ -119,13 +119,13 @@ static void _php_intlgregcal_constructor_body(INTERNAL_FUNCTION_PARAMETERS)
+ 		}
+ 
+ 		if (variant == 3) {
+-			gcal = new GregorianCalendar((int32_t)largs[0], (int32_t)largs[1],
++			gcal = new U_NAMESPACE_QUALIFIER GregorianCalendar((int32_t)largs[0], (int32_t)largs[1],
+ 				(int32_t)largs[2], status);
+ 		} else if (variant == 5) {
+-			gcal = new GregorianCalendar((int32_t)largs[0], (int32_t)largs[1],
++			gcal = new U_NAMESPACE_QUALIFIER GregorianCalendar((int32_t)largs[0], (int32_t)largs[1],
+ 				(int32_t)largs[2], (int32_t)largs[3], (int32_t)largs[4], status);
+ 		} else if (variant == 6) {
+-			gcal = new GregorianCalendar((int32_t)largs[0], (int32_t)largs[1],
++			gcal = new U_NAMESPACE_QUALIFIER GregorianCalendar((int32_t)largs[0], (int32_t)largs[1],
+ 				(int32_t)largs[2], (int32_t)largs[3], (int32_t)largs[4], (int32_t)largs[5],
+ 				status);
+ 		}
+@@ -140,9 +140,9 @@ static void _php_intlgregcal_constructor_body(INTERNAL_FUNCTION_PARAMETERS)
+ 
+ 		timelib_tzinfo *tzinfo = get_timezone_info(TSRMLS_C);
+ #if U_ICU_VERSION_MAJOR_NUM * 10 + U_ICU_VERSION_MINOR_NUM >= 42
+-		UnicodeString tzstr = UnicodeString::fromUTF8(StringPiece(tzinfo->name));
++		U_NAMESPACE_QUALIFIER UnicodeString tzstr = U_NAMESPACE_QUALIFIER UnicodeString::fromUTF8(U_NAMESPACE_QUALIFIER StringPiece(tzinfo->name));
+ #else
+-		UnicodeString tzstr = UnicodeString(tzinfo->name,
++		U_NAMESPACE_QUALIFIER UnicodeString tzstr = U_NAMESPACE_QUALIFIER UnicodeString(tzinfo->name,
+ 			strlen(tzinfo->name), US_INV);
+ #endif
+ 		if (tzstr.isBogus()) {
+@@ -154,7 +154,7 @@ static void _php_intlgregcal_constructor_body(INTERNAL_FUNCTION_PARAMETERS)
+ 			RETURN_NULL();
+ 		}
+ 
+-		TimeZone *tz = TimeZone::createTimeZone(tzstr);
++		U_NAMESPACE_QUALIFIER TimeZone *tz = U_NAMESPACE_QUALIFIER TimeZone::createTimeZone(tzstr);
+ 		gcal->adoptTimeZone(tz);
+ 	}
+     
+diff --git a/ext/intl/common/common_date.cpp b/ext/intl/common/common_date.cpp
+index ee998818..ff9e9aba 100644
+--- a/ext/intl/common/common_date.cpp
++++ b/ext/intl/common/common_date.cpp
+@@ -35,7 +35,7 @@ extern "C" {
+ 
+ /* {{{ timezone_convert_datetimezone
+  *      The timezone in DateTime and DateTimeZone is not unified. */
+-U_CFUNC TimeZone *timezone_convert_datetimezone(int type,
++U_CFUNC U_NAMESPACE_QUALIFIER TimeZone *timezone_convert_datetimezone(int type,
+ 												void *object,
+ 												int is_datetime,
+ 												intl_error *outside_error,
+@@ -45,7 +45,7 @@ U_CFUNC TimeZone *timezone_convert_datetimezone(int type,
+ 				offset_id[] = "GMT+00:00";
+ 	int			id_len = 0;
+ 	char		*message;
+-	TimeZone	*timeZone;
++	U_NAMESPACE_QUALIFIER TimeZone	*timeZone;
+ 
+ 	switch (type) {
+ 		case TIMELIB_ZONETYPE_ID:
+@@ -84,15 +84,15 @@ U_CFUNC TimeZone *timezone_convert_datetimezone(int type,
+ 			break;
+ 	}
+ 
+-	UnicodeString s = UnicodeString(id, id_len, US_INV);
+-	timeZone = TimeZone::createTimeZone(s);
++	U_NAMESPACE_QUALIFIER UnicodeString s = U_NAMESPACE_QUALIFIER UnicodeString(id, id_len, US_INV);
++	timeZone = U_NAMESPACE_QUALIFIER TimeZone::createTimeZone(s);
+ #if U_ICU_VERSION_MAJOR_NUM >= 49
+-	if (*timeZone == TimeZone::getUnknown()) {
++	if (*timeZone == U_NAMESPACE_QUALIFIER TimeZone::getUnknown()) {
+ #else
+-	UnicodeString resultingId;
++	U_NAMESPACE_QUALIFIER UnicodeString resultingId;
+ 	timeZone->getID(resultingId);
+-	if (resultingId == UnicodeString("Etc/Unknown", -1, US_INV)
+-			|| resultingId == UnicodeString("GMT", -1, US_INV)) {
++	if (resultingId == U_NAMESPACE_QUALIFIER UnicodeString("Etc/Unknown", -1, US_INV)
++			|| resultingId == U_NAMESPACE_QUALIFIER UnicodeString("GMT", -1, US_INV)) {
+ #endif
+ 		spprintf(&message, 0, "%s: time zone id '%s' "
+ 			"extracted from ext/date DateTimeZone not recognized", func, id);
+@@ -106,7 +106,7 @@ U_CFUNC TimeZone *timezone_convert_datetimezone(int type,
+ }
+ /* }}} */
+ 
+-U_CFUNC int intl_datetime_decompose(zval *z, double *millis, TimeZone **tz,
++U_CFUNC int intl_datetime_decompose(zval *z, double *millis, U_NAMESPACE_QUALIFIER TimeZone **tz,
+ 		intl_error *err, const char *func TSRMLS_DC)
+ {
+ 	zval	retval;
+@@ -155,7 +155,7 @@ U_CFUNC int intl_datetime_decompose(zval *z, double *millis, TimeZone **tz,
+ 			return FAILURE;
+ 		}
+ 		if (!datetime->time->is_localtime) {
+-			*tz = TimeZone::getGMT()->clone();
++			*tz = U_NAMESPACE_QUALIFIER TimeZone::getGMT()->clone();
+ 		} else {
+ 			*tz = timezone_convert_datetimezone(datetime->time->zone_type,
+ 				datetime, 1, NULL, func TSRMLS_CC);
+@@ -247,4 +247,3 @@ U_CFUNC double intl_zval_to_millis(zval *z, intl_error *err, const char *func TS
+ 
+ 	return rv;
+ }
+-
+diff --git a/ext/intl/common/common_date.h b/ext/intl/common/common_date.h
+index d2396cbf..1e7a3865 100644
+--- a/ext/intl/common/common_date.h
++++ b/ext/intl/common/common_date.h
+@@ -28,8 +28,8 @@ U_CDECL_END
+ 
+ #include <unicode/timezone.h>
+ 
+-U_CFUNC TimeZone *timezone_convert_datetimezone(int type, void *object, int is_datetime, intl_error *outside_error, const char *func TSRMLS_DC);
+-U_CFUNC int intl_datetime_decompose(zval *z, double *millis, TimeZone **tz,
++U_CFUNC U_NAMESPACE_QUALIFIER TimeZone *timezone_convert_datetimezone(int type, void *object, int is_datetime, intl_error *outside_error, const char *func TSRMLS_DC);
++U_CFUNC int intl_datetime_decompose(zval *z, double *millis, U_NAMESPACE_QUALIFIER TimeZone **tz,
+ 		intl_error *err, const char *func TSRMLS_DC);
+ 
+ #endif
+@@ -37,4 +37,3 @@ U_CFUNC int intl_datetime_decompose(zval *z, double *millis, TimeZone **tz,
+ U_CFUNC double intl_zval_to_millis(zval *z, intl_error *err, const char *func TSRMLS_DC);
+ 
+ #endif	/* COMMON_DATE_H */
+-
+diff --git a/ext/intl/common/common_enum.cpp b/ext/intl/common/common_enum.cpp
+index 3ba78558..0f5ca17f 100644
+--- a/ext/intl/common/common_enum.cpp
++++ b/ext/intl/common/common_enum.cpp
+@@ -88,7 +88,7 @@ static void string_enum_current_move_forward(zend_object_iterator *iter TSRMLS_D
+ 	INTLITERATOR_METHOD_FETCH_OBJECT_NO_CHECK;
+ 
+ 	int32_t result_length;
+-	const char *result = ((StringEnumeration*)iter->data)->next(
++	const char *result = ((U_NAMESPACE_QUALIFIER StringEnumeration*)iter->data)->next(
+ 		&result_length, INTLITERATOR_ERROR_CODE(ii));
+ 
+ 	intl_error_set_code(NULL, INTLITERATOR_ERROR_CODE(ii) TSRMLS_CC);
+@@ -113,7 +113,7 @@ static void string_enum_rewind(zend_object_iterator *iter TSRMLS_DC)
+ 	object = zoi_iter->wrapping_obj;
+ 	INTLITERATOR_METHOD_FETCH_OBJECT_NO_CHECK;
+ 
+-	((StringEnumeration*)iter->data)->reset(INTLITERATOR_ERROR_CODE(ii));
++	((U_NAMESPACE_QUALIFIER StringEnumeration*)iter->data)->reset(INTLITERATOR_ERROR_CODE(ii));
+ 
+ 	intl_error_set_code(NULL, INTLITERATOR_ERROR_CODE(ii) TSRMLS_CC);
+ 	if (U_FAILURE(INTLITERATOR_ERROR_CODE(ii))) {
+@@ -126,7 +126,7 @@ static void string_enum_rewind(zend_object_iterator *iter TSRMLS_DC)
+ 
+ static void string_enum_destroy_it(zend_object_iterator *iter TSRMLS_DC)
+ {
+-	delete (StringEnumeration*)iter->data;
++	delete (U_NAMESPACE_QUALIFIER StringEnumeration*)iter->data;
+ }
+ 
+ static zend_object_iterator_funcs string_enum_object_iterator_funcs = {
+@@ -139,7 +139,7 @@ static zend_object_iterator_funcs string_enum_object_iterator_funcs = {
+ 	zoi_with_current_invalidate_current
+ };
+ 
+-U_CFUNC void IntlIterator_from_StringEnumeration(StringEnumeration *se, zval *object TSRMLS_DC)
++U_CFUNC void IntlIterator_from_StringEnumeration(U_NAMESPACE_QUALIFIER StringEnumeration *se, zval *object TSRMLS_DC)
+ {
+ 	IntlIterator_object *ii;
+ 	object_init_ex(object, IntlIterator_ce_ptr);
+diff --git a/ext/intl/common/common_enum.h b/ext/intl/common/common_enum.h
+index 4c6abdb8..db3ba20d 100644
+--- a/ext/intl/common/common_enum.h
++++ b/ext/intl/common/common_enum.h
+@@ -69,7 +69,7 @@ U_CFUNC void zoi_with_current_get_current_data(zend_object_iterator *iter, zval
+ U_CFUNC void zoi_with_current_invalidate_current(zend_object_iterator *iter TSRMLS_DC);
+ 
+ #ifdef __cplusplus
+-U_CFUNC void IntlIterator_from_StringEnumeration(StringEnumeration *se, zval *object TSRMLS_DC);
++U_CFUNC void IntlIterator_from_StringEnumeration(U_NAMESPACE_QUALIFIER StringEnumeration *se, zval *object TSRMLS_DC);
+ #endif
+ 
+ U_CFUNC void intl_register_IntlIterator_class(TSRMLS_D);
+diff --git a/ext/intl/dateformat/dateformat_attrcpp.cpp b/ext/intl/dateformat/dateformat_attrcpp.cpp
+index b68abec6..b2ce6706 100644
+--- a/ext/intl/dateformat/dateformat_attrcpp.cpp
++++ b/ext/intl/dateformat/dateformat_attrcpp.cpp
+@@ -33,8 +33,8 @@ extern "C" {
+ #include "../intl_convertcpp.h"
+ #include "dateformat_helpers.h"
+ 
+-static inline DateFormat *fetch_datefmt(IntlDateFormatter_object *dfo) {
+-	return (DateFormat *)dfo->datef_data.udatf;
++static inline U_NAMESPACE_QUALIFIER DateFormat *fetch_datefmt(IntlDateFormatter_object *dfo) {
++	return (U_NAMESPACE_QUALIFIER DateFormat *)dfo->datef_data.udatf;
+ }
+ 
+ /* {{{ proto string IntlDateFormatter::getTimeZoneId()
+@@ -55,7 +55,7 @@ U_CFUNC PHP_FUNCTION(datefmt_get_timezone_id)
+ 
+ 	DATE_FORMAT_METHOD_FETCH_OBJECT;
+ 
+-	UnicodeString res = UnicodeString();
++	U_NAMESPACE_QUALIFIER UnicodeString res = U_NAMESPACE_QUALIFIER UnicodeString();
+ 	fetch_datefmt(dfo)->getTimeZone().getID(res);
+ 	intl_charFromString(res, &Z_STRVAL_P(return_value),
+ 			&Z_STRLEN_P(return_value), &INTL_DATA_ERROR_CODE(dfo));
+@@ -82,8 +82,8 @@ U_CFUNC PHP_FUNCTION(datefmt_get_timezone)
+ 
+ 	DATE_FORMAT_METHOD_FETCH_OBJECT;
+ 
+-	const TimeZone& tz = fetch_datefmt(dfo)->getTimeZone();
+-	TimeZone *tz_clone = tz.clone();
++	const U_NAMESPACE_QUALIFIER TimeZone& tz = fetch_datefmt(dfo)->getTimeZone();
++	U_NAMESPACE_QUALIFIER TimeZone *tz_clone = tz.clone();
+ 	if (tz_clone == NULL) {
+ 		intl_errors_set(INTL_DATA_ERROR_P(dfo), U_MEMORY_ALLOCATION_ERROR,
+ 				"datefmt_get_timezone: Out of memory when cloning time zone",
+@@ -112,7 +112,7 @@ U_CFUNC PHP_FUNCTION(datefmt_set_timezone_id)
+ U_CFUNC PHP_FUNCTION(datefmt_set_timezone)
+ {
+ 	zval		**timezone_zv;
+-	TimeZone	*timezone;
++	U_NAMESPACE_QUALIFIER TimeZone	*timezone;
+ 
+ 	DATE_FORMAT_METHOD_INIT_VARS;
+ 
+@@ -180,12 +180,12 @@ U_CFUNC PHP_FUNCTION(datefmt_get_calendar_object)
+ 
+ 	DATE_FORMAT_METHOD_FETCH_OBJECT;
+ 
+-	const Calendar *cal = fetch_datefmt(dfo)->getCalendar();
++	const U_NAMESPACE_QUALIFIER Calendar *cal = fetch_datefmt(dfo)->getCalendar();
+ 	if (cal == NULL) {
+ 		RETURN_NULL();
+ 	}
+ 
+-	Calendar *cal_clone = cal->clone();
++	U_NAMESPACE_QUALIFIER Calendar *cal_clone = cal->clone();
+ 	if (cal_clone == NULL) {
+ 		intl_errors_set(INTL_DATA_ERROR_P(dfo), U_MEMORY_ALLOCATION_ERROR,
+ 				"datefmt_get_calendar_object: Out of memory when cloning "
+@@ -216,10 +216,10 @@ U_CFUNC PHP_FUNCTION(datefmt_set_calendar)
+ 
+ 	DATE_FORMAT_METHOD_FETCH_OBJECT;
+ 
+-	Calendar	*cal;
++	U_NAMESPACE_QUALIFIER Calendar	*cal;
+ 	long		cal_type;
+ 	bool		cal_owned;
+-	Locale		locale = Locale::createFromName(dfo->requested_locale);
++	U_NAMESPACE_QUALIFIER Locale		locale = U_NAMESPACE_QUALIFIER Locale::createFromName(dfo->requested_locale);
+ 	// getting the actual locale from the DateFormat is not enough
+ 	// because we would have lost modifiers such as @calendar. We
+ 	// must store the requested locale on object creation
+@@ -232,7 +232,7 @@ U_CFUNC PHP_FUNCTION(datefmt_set_calendar)
+ 
+ 	if (cal_owned) {
+ 		/* a non IntlCalendar was specified, we want to keep the timezone */
+-		TimeZone *old_timezone = fetch_datefmt(dfo)->getTimeZone().clone();
++		U_NAMESPACE_QUALIFIER TimeZone *old_timezone = fetch_datefmt(dfo)->getTimeZone().clone();
+ 		if (old_timezone == NULL) {
+ 			intl_errors_set(INTL_DATA_ERROR_P(dfo), U_MEMORY_ALLOCATION_ERROR,
+ 					"datefmt_set_calendar: Out of memory when cloning calendar",
+@@ -258,4 +258,3 @@ U_CFUNC PHP_FUNCTION(datefmt_set_calendar)
+ 	RETURN_TRUE;
+ }
+ /* }}} */
+-
+diff --git a/ext/intl/dateformat/dateformat_create.cpp b/ext/intl/dateformat/dateformat_create.cpp
+index a2899f79..9969526e 100644
+--- a/ext/intl/dateformat/dateformat_create.cpp
++++ b/ext/intl/dateformat/dateformat_create.cpp
+@@ -42,15 +42,15 @@ static void datefmt_ctor(INTERNAL_FUNCTION_PARAMETERS)
+ 
+ 	const char	*locale_str;
+ 	int			locale_len		= 0;
+-	Locale		locale;
++	U_NAMESPACE_QUALIFIER Locale		locale;
+     long		date_type		= 0;
+     long		time_type		= 0;
+ 	zval		*calendar_zv	= NULL;
+-	Calendar	*calendar		= NULL;
++	U_NAMESPACE_QUALIFIER Calendar	*calendar		= NULL;
+ 	long		calendar_type;
+ 	bool		calendar_owned;
+ 	zval		**timezone_zv	= NULL;
+-	TimeZone	*timezone		= NULL;
++	U_NAMESPACE_QUALIFIER TimeZone	*timezone		= NULL;
+ 	bool		explicit_tz;
+     char*       pattern_str		= NULL;
+     int         pattern_str_len	= 0;
+@@ -74,7 +74,7 @@ static void datefmt_ctor(INTERNAL_FUNCTION_PARAMETERS)
+ 	if (locale_len == 0) {
+ 		locale_str = intl_locale_get_default(TSRMLS_C);
+ 	}
+-	locale = Locale::createFromName(locale_str);
++	locale = U_NAMESPACE_QUALIFIER Locale::createFromName(locale_str);
+ 
+ 	DATE_FORMAT_METHOD_FETCH_OBJECT_NO_CHECK;
+ 
+@@ -127,7 +127,7 @@ static void datefmt_ctor(INTERNAL_FUNCTION_PARAMETERS)
+ 	}
+ 
+     if (!U_FAILURE(INTL_DATA_ERROR_CODE(dfo))) {
+-		DateFormat *df = (DateFormat*)DATE_FORMAT_OBJECT(dfo);
++		U_NAMESPACE_QUALIFIER DateFormat *df = (U_NAMESPACE_QUALIFIER DateFormat*)DATE_FORMAT_OBJECT(dfo);
+ 		if (calendar_owned) {
+ 			df->adoptCalendar(calendar);
+ 			calendar_owned = false;
+diff --git a/ext/intl/dateformat/dateformat_format_object.cpp b/ext/intl/dateformat/dateformat_format_object.cpp
+index e8981faa..1d7bb27d 100644
+--- a/ext/intl/dateformat/dateformat_format_object.cpp
++++ b/ext/intl/dateformat/dateformat_format_object.cpp
+@@ -33,16 +33,16 @@ extern "C" {
+ #include "../common/common_date.h"
+ }
+ 
+-static const DateFormat::EStyle valid_styles[] = {
+-		DateFormat::kNone,
+-		DateFormat::kFull,
+-		DateFormat::kLong,
+-		DateFormat::kMedium,
+-		DateFormat::kShort,
+-		DateFormat::kFullRelative,
+-		DateFormat::kLongRelative,
+-		DateFormat::kMediumRelative,
+-		DateFormat::kShortRelative,
++static const U_NAMESPACE_QUALIFIER DateFormat::EStyle valid_styles[] = {
++		U_NAMESPACE_QUALIFIER DateFormat::kNone,
++		U_NAMESPACE_QUALIFIER DateFormat::kFull,
++		U_NAMESPACE_QUALIFIER DateFormat::kLong,
++		U_NAMESPACE_QUALIFIER DateFormat::kMedium,
++		U_NAMESPACE_QUALIFIER DateFormat::kShort,
++		U_NAMESPACE_QUALIFIER DateFormat::kFullRelative,
++		U_NAMESPACE_QUALIFIER DateFormat::kLongRelative,
++		U_NAMESPACE_QUALIFIER DateFormat::kMediumRelative,
++		U_NAMESPACE_QUALIFIER DateFormat::kShortRelative,
+ };
+ 
+ static bool valid_format(zval **z) {
+@@ -66,12 +66,12 @@ U_CFUNC PHP_FUNCTION(datefmt_format_object)
+ 	int					locale_len;
+ 	bool				pattern		= false;
+ 	UDate				date;
+-	TimeZone			*timeZone	= NULL;
++	U_NAMESPACE_QUALIFIER TimeZone			*timeZone	= NULL;
+ 	UErrorCode			status		= U_ZERO_ERROR;
+-	DateFormat			*df			= NULL;
+-	Calendar			*cal		= NULL;
+-	DateFormat::EStyle	dateStyle = DateFormat::kDefault,
+-						timeStyle = DateFormat::kDefault;
++	U_NAMESPACE_QUALIFIER DateFormat			*df			= NULL;
++	U_NAMESPACE_QUALIFIER Calendar			*cal		= NULL;
++	U_NAMESPACE_QUALIFIER DateFormat::EStyle	dateStyle = U_NAMESPACE_QUALIFIER DateFormat::kDefault,
++						timeStyle = U_NAMESPACE_QUALIFIER DateFormat::kDefault;
+ 
+ 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "o|Zs!",
+ 			&object, &format, &locale_str, &locale_len) == FAILURE) {
+@@ -103,7 +103,7 @@ U_CFUNC PHP_FUNCTION(datefmt_format_object)
+ 					"element of the array) is not valid", 0 TSRMLS_CC);
+ 			RETURN_FALSE;
+ 		}
+-		dateStyle = (DateFormat::EStyle)Z_LVAL_PP(z);
++		dateStyle = (U_NAMESPACE_QUALIFIER DateFormat::EStyle)Z_LVAL_PP(z);
+ 
+ 		zend_hash_move_forward_ex(ht, &pos);
+ 		zend_hash_get_current_data_ex(ht, (void**)&z, &pos);
+@@ -113,7 +113,7 @@ U_CFUNC PHP_FUNCTION(datefmt_format_object)
+ 					"second element of the array) is not valid", 0 TSRMLS_CC);
+ 			RETURN_FALSE;
+ 		}
+-		timeStyle = (DateFormat::EStyle)Z_LVAL_PP(z);
++		timeStyle = (U_NAMESPACE_QUALIFIER DateFormat::EStyle)Z_LVAL_PP(z);
+ 	} else if (Z_TYPE_PP(format) == IS_LONG) {
+ 		if (!valid_format(format)) {
+ 			intl_error_set(NULL, U_ILLEGAL_ARGUMENT_ERROR,
+@@ -121,7 +121,7 @@ U_CFUNC PHP_FUNCTION(datefmt_format_object)
+ 					0 TSRMLS_CC);
+ 			RETURN_FALSE;
+ 		}
+-		dateStyle = timeStyle = (DateFormat::EStyle)Z_LVAL_PP(format);
++		dateStyle = timeStyle = (U_NAMESPACE_QUALIFIER DateFormat::EStyle)Z_LVAL_PP(format);
+ 	} else {
+ 		convert_to_string_ex(format);
+ 		if (Z_STRLEN_PP(format) == 0) {
+@@ -133,11 +133,11 @@ U_CFUNC PHP_FUNCTION(datefmt_format_object)
+ 	}
+ 
+ 	//there's no support for relative time in ICU yet
+-	timeStyle = (DateFormat::EStyle)(timeStyle & ~DateFormat::kRelative);
++	timeStyle = (U_NAMESPACE_QUALIFIER DateFormat::EStyle)(timeStyle & ~U_NAMESPACE_QUALIFIER DateFormat::kRelative);
+ 
+ 	zend_class_entry *instance_ce = Z_OBJCE_P(object);
+ 	if (instanceof_function(instance_ce, Calendar_ce_ptr TSRMLS_CC)) {
+-		Calendar *obj_cal = calendar_fetch_native_calendar(object TSRMLS_CC);
++		U_NAMESPACE_QUALIFIER Calendar *obj_cal = calendar_fetch_native_calendar(object TSRMLS_CC);
+ 		if (obj_cal == NULL) {
+ 			intl_error_set(NULL, U_ILLEGAL_ARGUMENT_ERROR,
+ 					"datefmt_format_object: bad IntlCalendar instance: "
+@@ -159,7 +159,7 @@ U_CFUNC PHP_FUNCTION(datefmt_format_object)
+ 				"datefmt_format_object" TSRMLS_CC) == FAILURE) {
+ 			RETURN_FALSE;
+ 		}
+-		cal = new GregorianCalendar(Locale::createFromName(locale_str), status);
++		cal = new U_NAMESPACE_QUALIFIER GregorianCalendar(U_NAMESPACE_QUALIFIER Locale::createFromName(locale_str), status);
+ 		if (U_FAILURE(status)) {
+ 			intl_error_set(NULL, status,
+ 					"datefmt_format_object: could not create GregorianCalendar",
+@@ -175,10 +175,10 @@ U_CFUNC PHP_FUNCTION(datefmt_format_object)
+ 	}
+ 
+ 	if (pattern) {
+-		 df = new SimpleDateFormat(
+-				UnicodeString(Z_STRVAL_PP(format), Z_STRLEN_PP(format),
+-						UnicodeString::kInvariant),
+-				Locale::createFromName(locale_str),
++		 df = new U_NAMESPACE_QUALIFIER SimpleDateFormat(
++				U_NAMESPACE_QUALIFIER UnicodeString(Z_STRVAL_PP(format), Z_STRLEN_PP(format),
++						U_NAMESPACE_QUALIFIER UnicodeString::kInvariant),
++				U_NAMESPACE_QUALIFIER Locale::createFromName(locale_str),
+ 				status);
+ 
+ 		if (U_FAILURE(status)) {
+@@ -189,8 +189,8 @@ U_CFUNC PHP_FUNCTION(datefmt_format_object)
+ 			goto cleanup;
+ 		}
+ 	} else {
+-		df = DateFormat::createDateTimeInstance(dateStyle, timeStyle,
+-				Locale::createFromName(locale_str));
++		df = U_NAMESPACE_QUALIFIER DateFormat::createDateTimeInstance(dateStyle, timeStyle,
++				U_NAMESPACE_QUALIFIER Locale::createFromName(locale_str));
+ 
+ 		if (df == NULL) { /* according to ICU sources, this should never happen */
+ 			intl_error_set(NULL, status,
+@@ -208,7 +208,7 @@ U_CFUNC PHP_FUNCTION(datefmt_format_object)
+ 	timeZone = NULL;
+ 
+ 	{
+-		UnicodeString result = UnicodeString();
++		U_NAMESPACE_QUALIFIER UnicodeString result = U_NAMESPACE_QUALIFIER UnicodeString();
+ 		df->format(date, result);
+ 
+ 		Z_TYPE_P(return_value) = IS_STRING;
+diff --git a/ext/intl/dateformat/dateformat_helpers.cpp b/ext/intl/dateformat/dateformat_helpers.cpp
+index 74758bbe..f2ea1946 100644
+--- a/ext/intl/dateformat/dateformat_helpers.cpp
++++ b/ext/intl/dateformat/dateformat_helpers.cpp
+@@ -29,10 +29,10 @@ extern "C" {
+ }
+ 
+ int datefmt_process_calendar_arg(zval* calendar_zv,
+-								 Locale const& locale,
++								 U_NAMESPACE_QUALIFIER Locale const& locale,
+ 								 const char *func_name,
+ 								 intl_error *err,
+-								 Calendar*& cal,
++								 U_NAMESPACE_QUALIFIER Calendar*& cal,
+ 								 long& cal_int_type,
+ 								 bool& calendar_owned TSRMLS_DC)
+ {
+@@ -42,7 +42,7 @@ int datefmt_process_calendar_arg(zval* calendar_zv,
+ 	if (calendar_zv == NULL || Z_TYPE_P(calendar_zv) == IS_NULL) {
+ 
+ 		// default requested
+-		cal = new GregorianCalendar(locale, status);
++		cal = new U_NAMESPACE_QUALIFIER GregorianCalendar(locale, status);
+ 		calendar_owned = true;
+ 
+ 		cal_int_type = UCAL_GREGORIAN;
+@@ -60,9 +60,9 @@ int datefmt_process_calendar_arg(zval* calendar_zv,
+ 			efree(msg);
+ 			return FAILURE;
+ 		} else if (v == (long)UCAL_TRADITIONAL) {
+-			cal = Calendar::createInstance(locale, status);
++			cal = U_NAMESPACE_QUALIFIER Calendar::createInstance(locale, status);
+ 		} else { //UCAL_GREGORIAN
+-			cal = new GregorianCalendar(locale, status);
++			cal = new U_NAMESPACE_QUALIFIER GregorianCalendar(locale, status);
+ 		}
+ 		calendar_owned = true;
+ 
+diff --git a/ext/intl/dateformat/dateformat_helpers.h b/ext/intl/dateformat/dateformat_helpers.h
+index bded0b7d..d0289a1c 100644
+--- a/ext/intl/dateformat/dateformat_helpers.h
++++ b/ext/intl/dateformat/dateformat_helpers.h
+@@ -28,12 +28,11 @@ extern "C" {
+ }
+ 
+ int datefmt_process_calendar_arg(zval* calendar_zv,
+-								 Locale const& locale,
++								 U_NAMESPACE_QUALIFIER Locale const& locale,
+ 								 const char *func_name,
+ 								 intl_error *err,
+-								 Calendar*& cal,
++								 U_NAMESPACE_QUALIFIER Calendar*& cal,
+ 								 long& cal_int_type,
+ 								 bool& calendar_owned TSRMLS_DC);
+ 
+ #endif	/* DATEFORMAT_HELPERS_H */
+-
+diff --git a/ext/intl/intl_convertcpp.cpp b/ext/intl/intl_convertcpp.cpp
+index f699a3c6..00bbbd11 100644
+--- a/ext/intl/intl_convertcpp.cpp
++++ b/ext/intl/intl_convertcpp.cpp
+@@ -25,7 +25,7 @@ extern "C" {
+ }
+ 
+ /* {{{ intl_stringFromChar */
+-int intl_stringFromChar(UnicodeString &ret, char *str, int32_t str_len, UErrorCode *status)
++int intl_stringFromChar(U_NAMESPACE_QUALIFIER UnicodeString &ret, char *str, int32_t str_len, UErrorCode *status)
+ {
+ 	//the number of UTF-16 code units is not larger than that of UTF-8 code
+ 	//units, + 1 for the terminator
+@@ -51,7 +51,7 @@ int intl_stringFromChar(UnicodeString &ret, char *str, int32_t str_len, UErrorCo
+  * faster than doing intl_convert_utf16_to_utf8(&res, &res_len,
+  *		from.getBuffer(), from.length(), &status),
+  * but consumes more memory */
+-int intl_charFromString(const UnicodeString &from, char **res, int *res_len, UErrorCode *status)
++int intl_charFromString(const U_NAMESPACE_QUALIFIER UnicodeString &from, char **res, int *res_len, UErrorCode *status)
+ {
+ 	if (from.isBogus()) {
+ 		return FAILURE;
+diff --git a/ext/intl/intl_convertcpp.h b/ext/intl/intl_convertcpp.h
+index 89d4209d..c2a97289 100644
+--- a/ext/intl/intl_convertcpp.h
++++ b/ext/intl/intl_convertcpp.h
+@@ -25,8 +25,8 @@
+ 
+ #include <unicode/unistr.h>
+ 
+-int intl_stringFromChar(UnicodeString &ret, char *str, int32_t str_len, UErrorCode *status);
++int intl_stringFromChar(U_NAMESPACE_QUALIFIER UnicodeString &ret, char *str, int32_t str_len, UErrorCode *status);
+ 
+-int intl_charFromString(const UnicodeString &from, char **res, int *res_len, UErrorCode *status);
++int intl_charFromString(const U_NAMESPACE_QUALIFIER UnicodeString &from, char **res, int *res_len, UErrorCode *status);
+ 
+ #endif /* INTL_CONVERTCPP_H */
+diff --git a/ext/intl/msgformat/msgformat_helpers.cpp b/ext/intl/msgformat/msgformat_helpers.cpp
+index cc38cf0d..2f06d9e3 100644
+--- a/ext/intl/msgformat/msgformat_helpers.cpp
++++ b/ext/intl/msgformat/msgformat_helpers.cpp
+@@ -79,7 +79,7 @@ U_NAMESPACE_END
+ U_CFUNC int32_t umsg_format_arg_count(UMessageFormat *fmt)
+ {
+ 	int32_t fmt_count = 0;
+-	MessageFormatAdapter::getArgTypeList(*(const MessageFormat*)fmt, fmt_count);
++	U_NAMESPACE_QUALIFIER MessageFormatAdapter::getArgTypeList(*(const U_NAMESPACE_QUALIFIER MessageFormat*)fmt, fmt_count);
+ 	return fmt_count;
+ }
+ 
+@@ -98,8 +98,8 @@ static HashTable *umsg_get_numeric_types(MessageFormatter_object *mfo,
+ 		return mfo->mf_data.arg_types;
+ 	}
+ 
+-	const Formattable::Type *types = MessageFormatAdapter::getArgTypeList(
+-		*(MessageFormat*)mfo->mf_data.umsgf, parts_count);
++	const U_NAMESPACE_QUALIFIER Formattable::Type *types = U_NAMESPACE_QUALIFIER MessageFormatAdapter::getArgTypeList(
++		*(U_NAMESPACE_QUALIFIER MessageFormat*)mfo->mf_data.umsgf, parts_count);
+ 
+ 	/* Hash table will store Formattable::Type objects directly,
+ 	 * so no need for destructor */
+@@ -107,7 +107,7 @@ static HashTable *umsg_get_numeric_types(MessageFormatter_object *mfo,
+ 	zend_hash_init(ret, parts_count, NULL, NULL, 0);
+ 
+ 	for (int i = 0; i < parts_count; i++) {
+-		const Formattable::Type t = types[i];
++		const U_NAMESPACE_QUALIFIER Formattable::Type t = types[i];
+ 		if (zend_hash_index_update(ret, (ulong)i, (void*)&t, sizeof(t), NULL)
+ 				== FAILURE) {
+ 			intl_errors_set(&err, U_MEMORY_ALLOCATION_ERROR,
+@@ -130,7 +130,7 @@ static HashTable *umsg_get_numeric_types(MessageFormatter_object *mfo,
+ 
+ #ifdef HAS_MESSAGE_PATTERN
+ static HashTable *umsg_parse_format(MessageFormatter_object *mfo,
+-									const MessagePattern& mp,
++									const U_NAMESPACE_QUALIFIER MessagePattern& mp,
+ 									intl_error& err TSRMLS_DC)
+ {
+ 	HashTable *ret;
+@@ -140,7 +140,7 @@ static HashTable *umsg_parse_format(MessageFormatter_object *mfo,
+ 		return NULL;
+ 	}
+ 
+-	if (!((MessageFormat *)mfo->mf_data.umsgf)->usesNamedArguments()) {
++	if (!((U_NAMESPACE_QUALIFIER MessageFormat *)mfo->mf_data.umsgf)->usesNamedArguments()) {
+ 		return umsg_get_numeric_types(mfo, err TSRMLS_CC);
+ 	}
+ 
+@@ -168,22 +168,22 @@ static HashTable *umsg_parse_format(MessageFormatter_object *mfo,
+ 	/* The last two "parts" can at most be ARG_LIMIT and MSG_LIMIT
+ 	 * which we need not examine. */
+ 	for (int32_t i = 0; i < parts_count - 2 && U_SUCCESS(err.code); i++) {
+-		MessagePattern::Part p = mp.getPart(i);
++		U_NAMESPACE_QUALIFIER MessagePattern::Part p = mp.getPart(i);
+ 
+ 		if (p.getType() != UMSGPAT_PART_TYPE_ARG_START) {
+ 			continue;
+ 		}
+ 
+-		MessagePattern::Part name_part = mp.getPart(++i); /* Getting name, advancing i */
+-		Formattable::Type type,
++		U_NAMESPACE_QUALIFIER MessagePattern::Part name_part = mp.getPart(++i); /* Getting name, advancing i */
++		U_NAMESPACE_QUALIFIER Formattable::Type type,
+ 						  *storedType;
+ 
+ 		if (name_part.getType() == UMSGPAT_PART_TYPE_ARG_NAME) {
+-			UnicodeString argName = mp.getSubstring(name_part);
++			U_NAMESPACE_QUALIFIER UnicodeString argName = mp.getSubstring(name_part);
+ 			if (zend_hash_find(ret, (char*)argName.getBuffer(), argName.length(),
+ 					(void**)&storedType) == FAILURE) {
+ 				/* not found already; create new entry in HT */
+-				Formattable::Type bogusType = Formattable::kObject;
++				U_NAMESPACE_QUALIFIER Formattable::Type bogusType = U_NAMESPACE_QUALIFIER Formattable::kObject;
+ 				if (zend_hash_update(ret, (char*)argName.getBuffer(), argName.length(),
+ 						(void*)&bogusType, sizeof(bogusType), (void**)&storedType) == FAILURE) {
+ 					intl_errors_set(&err, U_MEMORY_ALLOCATION_ERROR,
+@@ -201,7 +201,7 @@ static HashTable *umsg_parse_format(MessageFormatter_object *mfo,
+ 			if (zend_hash_index_find(ret, (ulong)argNumber, (void**)&storedType)
+ 					== FAILURE) {
+ 				/* not found already; create new entry in HT */
+-				Formattable::Type bogusType = Formattable::kObject;
++				U_NAMESPACE_QUALIFIER Formattable::Type bogusType = U_NAMESPACE_QUALIFIER Formattable::kObject;
+ 				if (zend_hash_index_update(ret, (ulong)argNumber, (void*)&bogusType,
+ 						sizeof(bogusType), (void**)&storedType) == FAILURE) {
+ 					intl_errors_set(&err, U_MEMORY_ALLOCATION_ERROR,
+@@ -217,37 +217,37 @@ static HashTable *umsg_parse_format(MessageFormatter_object *mfo,
+ 		UMessagePatternArgType argType = p.getArgType();
+ 		/* No type specified, treat it as a string */
+ 		if (argType == UMSGPAT_ARG_TYPE_NONE) {
+-			type = Formattable::kString;
++			type = U_NAMESPACE_QUALIFIER Formattable::kString;
+ 		} else { /* Some type was specified, might be simple or complicated */
+ 			if (argType == UMSGPAT_ARG_TYPE_SIMPLE) {
+ 				/* For a SIMPLE arg, after the name part, there should be
+ 				 * an ARG_TYPE part whose string value tells us what to do */
+-				MessagePattern::Part type_part = mp.getPart(++i); /* Getting type, advancing i */
++				U_NAMESPACE_QUALIFIER MessagePattern::Part type_part = mp.getPart(++i); /* Getting type, advancing i */
+ 				if (type_part.getType() == UMSGPAT_PART_TYPE_ARG_TYPE) {
+-					UnicodeString typeString = mp.getSubstring(type_part);
++					U_NAMESPACE_QUALIFIER UnicodeString typeString = mp.getSubstring(type_part);
+ 					/* This is all based on the rules in the docs for MessageFormat
+ 					 * @see http://icu-project.org/apiref/icu4c/classMessageFormat.html */
+ 					if (typeString == "number") {
+-						MessagePattern::Part style_part = mp.getPart(i + 1); /* Not advancing i */
++						U_NAMESPACE_QUALIFIER MessagePattern::Part style_part = mp.getPart(i + 1); /* Not advancing i */
+ 						if (style_part.getType() == UMSGPAT_PART_TYPE_ARG_STYLE) {
+-							UnicodeString styleString = mp.getSubstring(style_part);
++							U_NAMESPACE_QUALIFIER UnicodeString styleString = mp.getSubstring(style_part);
+ 							if (styleString == "integer") {
+-								type = Formattable::kInt64;
++								type = U_NAMESPACE_QUALIFIER Formattable::kInt64;
+ 							} else if (styleString == "currency") {
+-								type = Formattable::kDouble;
++								type = U_NAMESPACE_QUALIFIER Formattable::kDouble;
+ 							} else if (styleString == "percent") {
+-								type = Formattable::kDouble;
++								type = U_NAMESPACE_QUALIFIER Formattable::kDouble;
+ 							} else { /* some style invalid/unknown to us */
+-								type = Formattable::kDouble;
++								type = U_NAMESPACE_QUALIFIER Formattable::kDouble;
+ 							}
+ 						} else { // if missing style, part, make it a double
+-							type = Formattable::kDouble;
++							type = U_NAMESPACE_QUALIFIER Formattable::kDouble;
+ 						}
+ 					} else if ((typeString == "date") || (typeString == "time")) {
+-						type = Formattable::kDate;
++						type = U_NAMESPACE_QUALIFIER Formattable::kDate;
+ 					} else if ((typeString == "spellout") || (typeString == "ordinal")
+ 							|| (typeString == "duration")) {
+-						type = Formattable::kDouble;
++						type = U_NAMESPACE_QUALIFIER Formattable::kDouble;
+ 					}
+ 				} else {
+ 					/* If there's no UMSGPAT_PART_TYPE_ARG_TYPE right after a
+@@ -259,22 +259,22 @@ static HashTable *umsg_parse_format(MessageFormatter_object *mfo,
+ 					continue;
+ 				}
+ 			} else if (argType == UMSGPAT_ARG_TYPE_PLURAL) {
+-				type = Formattable::kDouble;
++				type = U_NAMESPACE_QUALIFIER Formattable::kDouble;
+ 			} else if (argType == UMSGPAT_ARG_TYPE_CHOICE) {
+-				type = Formattable::kDouble;
++				type = U_NAMESPACE_QUALIFIER Formattable::kDouble;
+ 			} else if (argType == UMSGPAT_ARG_TYPE_SELECT) {
+-				type = Formattable::kString;
++				type = U_NAMESPACE_QUALIFIER Formattable::kString;
+ #if U_ICU_VERSION_MAJOR_NUM >= 50
+ 			} else if (argType == UMSGPAT_ARG_TYPE_SELECTORDINAL) {
+-				type = Formattable::kDouble;
++				type = U_NAMESPACE_QUALIFIER Formattable::kDouble;
+ #endif
+ 			} else {
+-				type = Formattable::kString;
++				type = U_NAMESPACE_QUALIFIER Formattable::kString;
+ 			}
+ 		} /* was type specified? */
+ 
+ 		/* We found a different type for the same arg! */
+-		if (*storedType != Formattable::kObject && *storedType != type) {
++		if (*storedType != U_NAMESPACE_QUALIFIER Formattable::kObject && *storedType != type) {
+ 			intl_errors_set(&err, U_ARGUMENT_TYPE_MISMATCH,
+ 				"Inconsistent types declared for an argument", 0 TSRMLS_CC);
+ 			continue;
+@@ -299,10 +299,10 @@ static HashTable *umsg_parse_format(MessageFormatter_object *mfo,
+ static HashTable *umsg_get_types(MessageFormatter_object *mfo,
+ 								 intl_error& err TSRMLS_DC)
+ {
+-	MessageFormat *mf = (MessageFormat *)mfo->mf_data.umsgf;
++	U_NAMESPACE_QUALIFIER MessageFormat *mf = (U_NAMESPACE_QUALIFIER MessageFormat *)mfo->mf_data.umsgf;
+ 
+ #ifdef HAS_MESSAGE_PATTERN
+-	const MessagePattern mp = MessageFormatAdapter::getMessagePattern(mf);
++	const U_NAMESPACE_QUALIFIER MessagePattern mp = U_NAMESPACE_QUALIFIER MessageFormatAdapter::getMessagePattern(mf);
+ 
+ 	return umsg_parse_format(mfo, mp, err TSRMLS_CC);
+ #else
+@@ -319,9 +319,9 @@ static HashTable *umsg_get_types(MessageFormatter_object *mfo,
+ static void umsg_set_timezone(MessageFormatter_object *mfo,
+ 							  intl_error& err TSRMLS_DC)
+ {
+-	MessageFormat *mf = (MessageFormat *)mfo->mf_data.umsgf;
+-	TimeZone	  *used_tz = NULL;
+-	const Format  **formats;
++	U_NAMESPACE_QUALIFIER MessageFormat *mf = (U_NAMESPACE_QUALIFIER MessageFormat *)mfo->mf_data.umsgf;
++	U_NAMESPACE_QUALIFIER TimeZone	  *used_tz = NULL;
++	const U_NAMESPACE_QUALIFIER Format  **formats;
+ 	int32_t		  count;
+ 
+ 	/* Unfortanely, this cannot change the time zone for arguments that
+@@ -341,8 +341,8 @@ static void umsg_set_timezone(MessageFormatter_object *mfo,
+ 	}
+ 
+ 	for (int i = 0; U_SUCCESS(err.code) && i < count; i++) {
+-		DateFormat* df = dynamic_cast<DateFormat*>(
+-			const_cast<Format *>(formats[i]));
++		U_NAMESPACE_QUALIFIER DateFormat* df = dynamic_cast<U_NAMESPACE_QUALIFIER DateFormat*>(
++			const_cast<U_NAMESPACE_QUALIFIER Format *>(formats[i]));
+ 		if (df == NULL) {
+ 			continue;
+ 		}
+@@ -371,9 +371,9 @@ U_CFUNC void umsg_format_helper(MessageFormatter_object *mfo,
+ 								int *formatted_len TSRMLS_DC)
+ {
+ 	int arg_count = zend_hash_num_elements(args);
+-	std::vector<Formattable> fargs;
+-	std::vector<UnicodeString> farg_names;
+-	MessageFormat *mf = (MessageFormat *)mfo->mf_data.umsgf;
++	std::vector<U_NAMESPACE_QUALIFIER Formattable> fargs;
++	std::vector<U_NAMESPACE_QUALIFIER UnicodeString> farg_names;
++	U_NAMESPACE_QUALIFIER MessageFormat *mf = (U_NAMESPACE_QUALIFIER MessageFormat *)mfo->mf_data.umsgf;
+ 	HashTable *types;
+ 	intl_error& err = INTL_DATA_ERROR(mfo);
+ 
+@@ -406,9 +406,9 @@ U_CFUNC void umsg_format_helper(MessageFormatter_object *mfo,
+ 			) == SUCCESS;
+ 		zend_hash_move_forward_ex(args, &pos), argNum++)
+ 	{
+-		Formattable& formattable = fargs[argNum];
+-		UnicodeString& key = farg_names[argNum];
+-		Formattable::Type argType = Formattable::kObject, //unknown
++		U_NAMESPACE_QUALIFIER Formattable& formattable = fargs[argNum];
++		U_NAMESPACE_QUALIFIER UnicodeString& key = farg_names[argNum];
++		U_NAMESPACE_QUALIFIER Formattable::Type argType = U_NAMESPACE_QUALIFIER Formattable::kObject, //unknown
+ 						  *storedArgType = NULL;
+ 
+ 		/* Process key and retrieve type */
+@@ -447,9 +447,9 @@ U_CFUNC void umsg_format_helper(MessageFormatter_object *mfo,
+ 
+ 		/* Convert zval to formattable according to message format type
+ 		 * or (as a fallback) the zval type */
+-		if (argType != Formattable::kObject) {
++		if (argType != U_NAMESPACE_QUALIFIER Formattable::kObject) {
+ 			switch (argType) {
+-			case Formattable::kString:
++			case U_NAMESPACE_QUALIFIER Formattable::kString:
+ 				{
+ 	string_arg:
+ 					/* This implicitly converts objects
+@@ -459,7 +459,7 @@ U_CFUNC void umsg_format_helper(MessageFormatter_object *mfo,
+ 					 */
+ 					convert_to_string_ex(elem);
+ 
+-					UnicodeString *text = new UnicodeString();
++					U_NAMESPACE_QUALIFIER UnicodeString *text = new U_NAMESPACE_QUALIFIER UnicodeString();
+ 					intl_stringFromChar(*text,
+ 						Z_STRVAL_PP(elem), Z_STRLEN_PP(elem), &err.code);
+ 
+@@ -475,7 +475,7 @@ U_CFUNC void umsg_format_helper(MessageFormatter_object *mfo,
+ 					formattable.adoptString(text);
+ 					break;
+ 				}
+-			case Formattable::kDouble:
++			case U_NAMESPACE_QUALIFIER Formattable::kDouble:
+ 				{
+ 					double d;
+ 					if (Z_TYPE_PP(elem) == IS_DOUBLE) {
+@@ -492,7 +492,7 @@ U_CFUNC void umsg_format_helper(MessageFormatter_object *mfo,
+ 					formattable.setDouble(d);
+ 					break;
+ 				}
+-			case Formattable::kLong:
++			case U_NAMESPACE_QUALIFIER Formattable::kLong:
+ 				{
+ 					int32_t tInt32 = 0;
+ retry_klong:
+@@ -522,7 +522,7 @@ retry_klong:
+ 					formattable.setLong(tInt32);
+ 					break;
+ 				}
+-			case Formattable::kInt64:
++			case U_NAMESPACE_QUALIFIER Formattable::kInt64:
+ 				{
+ 					int64_t tInt64 = 0;
+ retry_kint64:
+@@ -546,7 +546,7 @@ retry_kint64:
+ 					formattable.setInt64(tInt64);
+ 					break;
+ 				}
+-			case Formattable::kDate:
++			case U_NAMESPACE_QUALIFIER Formattable::kDate:
+ 				{
+ 					double dd = intl_zval_to_millis(*elem, &err, "msgfmt_format" TSRMLS_CC);
+ 					if (U_FAILURE(err.code)) {
+@@ -615,8 +615,8 @@ retry_kint64:
+ 		return;
+ 	}
+ 
+-	UnicodeString resultStr;
+-	FieldPosition fieldPosition(0);
++	U_NAMESPACE_QUALIFIER UnicodeString resultStr;
++	U_NAMESPACE_QUALIFIER FieldPosition fieldPosition(0);
+ 
+ 	/* format the message */
+ 	mf->format(farg_names.empty() ? NULL : &farg_names[0],
+@@ -642,8 +642,8 @@ retry_kint64:
+ 
+ U_CFUNC void umsg_parse_helper(UMessageFormat *fmt, int *count, zval ***args, UChar *source, int source_len, UErrorCode *status)
+ {
+-    UnicodeString srcString(source, source_len);
+-    Formattable *fargs = ((const MessageFormat*)fmt)->parse(srcString, *count, *status);
++    U_NAMESPACE_QUALIFIER UnicodeString srcString(source, source_len);
++    U_NAMESPACE_QUALIFIER Formattable *fargs = ((const U_NAMESPACE_QUALIFIER MessageFormat*)fmt)->parse(srcString, *count, *status);
+ 
+ 	if(U_FAILURE(*status)) {
+ 		return;
+@@ -655,27 +655,27 @@ U_CFUNC void umsg_parse_helper(UMessageFormat *fmt, int *count, zval ***args, UC
+     for(int32_t i = 0; i < *count; i++) {
+ 	    int64_t aInt64;
+ 		double aDate;
+-		UnicodeString temp;
++		U_NAMESPACE_QUALIFIER UnicodeString temp;
+ 		char *stmp;
+ 		int stmp_len;
+ 
+ 		ALLOC_INIT_ZVAL((*args)[i]);
+ 
+ 		switch(fargs[i].getType()) {
+-        case Formattable::kDate:
++        case U_NAMESPACE_QUALIFIER Formattable::kDate:
+ 			aDate = ((double)fargs[i].getDate())/U_MILLIS_PER_SECOND;
+ 			ZVAL_DOUBLE((*args)[i], aDate);
+             break;
+ 
+-        case Formattable::kDouble:
++        case U_NAMESPACE_QUALIFIER Formattable::kDouble:
+ 			ZVAL_DOUBLE((*args)[i], (double)fargs[i].getDouble());
+             break;
+ 
+-        case Formattable::kLong:
++        case U_NAMESPACE_QUALIFIER Formattable::kLong:
+ 			ZVAL_LONG((*args)[i], fargs[i].getLong());
+             break;
+ 
+-        case Formattable::kInt64:
++        case U_NAMESPACE_QUALIFIER Formattable::kInt64:
+             aInt64 = fargs[i].getInt64();
+ 			if(aInt64 > LONG_MAX || aInt64 < -LONG_MAX) {
+ 				ZVAL_DOUBLE((*args)[i], (double)aInt64);
+@@ -684,7 +684,7 @@ U_CFUNC void umsg_parse_helper(UMessageFormat *fmt, int *count, zval ***args, UC
+ 			}
+             break;
+ 
+-        case Formattable::kString:
++        case U_NAMESPACE_QUALIFIER Formattable::kString:
+             fargs[i].getString(temp);
+ 			intl_convert_utf16_to_utf8(&stmp, &stmp_len, temp.getBuffer(), temp.length(), status);
+ 			if(U_FAILURE(*status)) {
+@@ -694,8 +694,8 @@ U_CFUNC void umsg_parse_helper(UMessageFormat *fmt, int *count, zval ***args, UC
+ 			ZVAL_STRINGL((*args)[i], stmp, stmp_len, 0);
+             break;
+ 
+-        case Formattable::kObject:
+-        case Formattable::kArray:
++        case U_NAMESPACE_QUALIFIER Formattable::kObject:
++        case U_NAMESPACE_QUALIFIER Formattable::kArray:
+             *status = U_ILLEGAL_ARGUMENT_ERROR;
+ 			cleanup_zvals();
+             break;
+diff --git a/ext/intl/timezone/timezone_class.cpp b/ext/intl/timezone/timezone_class.cpp
+index 374b1638..265b1dbf 100644
+--- a/ext/intl/timezone/timezone_class.cpp
++++ b/ext/intl/timezone/timezone_class.cpp
+@@ -45,7 +45,7 @@ U_CDECL_END
+ /* }}} */
+ 
+ /* {{{ timezone_object_construct */
+-U_CFUNC void timezone_object_construct(const TimeZone *zone, zval *object, int owned TSRMLS_DC)
++U_CFUNC void timezone_object_construct(const U_NAMESPACE_QUALIFIER TimeZone *zone, zval *object, int owned TSRMLS_DC)
+ {
+ 	TimeZone_object	*to;
+ 
+@@ -58,12 +58,12 @@ U_CFUNC void timezone_object_construct(const TimeZone *zone, zval *object, int o
+ 
+ /* {{{ timezone_convert_to_datetimezone
+  *	   Convert from TimeZone to DateTimeZone object */
+-U_CFUNC zval *timezone_convert_to_datetimezone(const TimeZone *timeZone,
++U_CFUNC zval *timezone_convert_to_datetimezone(const U_NAMESPACE_QUALIFIER TimeZone *timeZone,
+ 											   intl_error *outside_error,
+ 											   const char *func TSRMLS_DC)
+ {
+ 	zval				*ret = NULL;
+-	UnicodeString		id;
++	U_NAMESPACE_QUALIFIER UnicodeString		id;
+ 	char				*message = NULL;
+ 	php_timezone_obj	*tzobj;
+ 	zval				arg = zval_used_for_init;
+@@ -80,7 +80,7 @@ U_CFUNC zval *timezone_convert_to_datetimezone(const TimeZone *timeZone,
+ 	object_init_ex(ret, php_date_get_timezone_ce());
+ 	tzobj = (php_timezone_obj *)zend_objects_get_address(ret TSRMLS_CC);
+ 
+-	if (id.compare(0, 3, UnicodeString("GMT", sizeof("GMT")-1, US_INV)) == 0) {
++	if (id.compare(0, 3, U_NAMESPACE_QUALIFIER UnicodeString("GMT", sizeof("GMT")-1, US_INV)) == 0) {
+ 		/* The DateTimeZone constructor doesn't support offset time zones,
+ 		 * so we must mess with DateTimeZone structure ourselves */
+ 		tzobj->initialized	  = 1;
+@@ -129,14 +129,14 @@ error:
+ 
+ /* {{{ timezone_process_timezone_argument
+  * TimeZone argument processor. outside_error may be NULL (for static functions/constructors) */
+-U_CFUNC TimeZone *timezone_process_timezone_argument(zval **zv_timezone,
++U_CFUNC U_NAMESPACE_QUALIFIER TimeZone *timezone_process_timezone_argument(zval **zv_timezone,
+ 													 intl_error *outside_error,
+ 													 const char *func TSRMLS_DC)
+ {
+ 	zval		local_zv_tz		= zval_used_for_init,
+ 				*local_zv_tz_p	= &local_zv_tz;
+ 	char		*message = NULL;
+-	TimeZone	*timeZone;
++	U_NAMESPACE_QUALIFIER TimeZone	*timeZone;
+ 
+ 	if (zv_timezone == NULL || Z_TYPE_PP(zv_timezone) == IS_NULL) {
+ 		timelib_tzinfo *tzinfo = get_timezone_info(TSRMLS_C);
+@@ -175,7 +175,7 @@ U_CFUNC TimeZone *timezone_process_timezone_argument(zval **zv_timezone,
+ 		return timezone_convert_datetimezone(tzobj->type, tzobj, 0,
+ 			outside_error, func TSRMLS_CC);
+ 	} else {
+-		UnicodeString	id,
++		U_NAMESPACE_QUALIFIER UnicodeString	id,
+ 						gottenId;
+ 		UErrorCode		status = U_ZERO_ERROR; /* outside_error may be NULL */
+ 		convert_to_string_ex(zv_timezone);
+@@ -189,7 +189,7 @@ U_CFUNC TimeZone *timezone_process_timezone_argument(zval **zv_timezone,
+ 			}
+ 			return NULL;
+ 		}
+-		timeZone = TimeZone::createTimeZone(id);
++		timeZone = U_NAMESPACE_QUALIFIER TimeZone::createTimeZone(id);
+ 		if (timeZone == NULL) {
+ 			spprintf(&message, 0, "%s: could not create time zone", func);
+ 			if (message) {
+@@ -233,7 +233,7 @@ static zend_object_value TimeZone_clone_obj(zval *object TSRMLS_DC)
+ 		&to_orig->zo, Z_OBJ_HANDLE_P(object) TSRMLS_CC);
+ 
+ 	if (to_orig->utimezone != NULL) {
+-		TimeZone	*newTimeZone;
++		U_NAMESPACE_QUALIFIER TimeZone	*newTimeZone;
+ 
+ 		newTimeZone = to_orig->utimezone->clone();
+ 		to_new->should_delete = 1;
+@@ -285,8 +285,8 @@ static HashTable *TimeZone_get_debug_info(zval *object, int *is_temp TSRMLS_DC)
+ {
+ 	zval			zv = zval_used_for_init;
+ 	TimeZone_object	*to;
+-	const TimeZone	*tz;
+-	UnicodeString	ustr;
++	const U_NAMESPACE_QUALIFIER TimeZone	*tz;
++	U_NAMESPACE_QUALIFIER UnicodeString	ustr;
+ 	char			*str;
+ 	int				str_len;
+ 	UErrorCode		uec = U_ZERO_ERROR;
+@@ -314,7 +314,7 @@ static HashTable *TimeZone_get_debug_info(zval *object, int *is_temp TSRMLS_DC)
+ 	add_assoc_stringl_ex(&zv, "id", sizeof("id"), str, str_len, 0);
+ 
+ 	int32_t rawOffset, dstOffset;
+-	UDate now = Calendar::getNow();
++	UDate now = U_NAMESPACE_QUALIFIER Calendar::getNow();
+ 	tz->getOffset(now, FALSE, rawOffset, dstOffset, uec);
+ 	if (U_FAILURE(uec)) {
+ 		return Z_ARRVAL(zv);
+@@ -516,16 +516,16 @@ U_CFUNC void timezone_register_IntlTimeZone_class(TSRMLS_D)
+ 	zend_declare_class_constant_long(TimeZone_ce_ptr, name, sizeof(name) - 1, \
+ 		val TSRMLS_CC)
+ 
+-	TIMEZONE_DECL_LONG_CONST("DISPLAY_SHORT", TimeZone::SHORT);
+-	TIMEZONE_DECL_LONG_CONST("DISPLAY_LONG", TimeZone::LONG);
++	TIMEZONE_DECL_LONG_CONST("DISPLAY_SHORT", U_NAMESPACE_QUALIFIER TimeZone::SHORT);
++	TIMEZONE_DECL_LONG_CONST("DISPLAY_LONG", U_NAMESPACE_QUALIFIER TimeZone::LONG);
+ 
+ #if U_ICU_VERSION_MAJOR_NUM * 10 + U_ICU_VERSION_MINOR_NUM >= 44
+-	TIMEZONE_DECL_LONG_CONST("DISPLAY_SHORT_GENERIC", TimeZone::SHORT_GENERIC);
+-	TIMEZONE_DECL_LONG_CONST("DISPLAY_LONG_GENERIC", TimeZone::LONG_GENERIC);
+-	TIMEZONE_DECL_LONG_CONST("DISPLAY_SHORT_GMT", TimeZone::SHORT_GMT);
+-	TIMEZONE_DECL_LONG_CONST("DISPLAY_LONG_GMT", TimeZone::LONG_GMT);
+-	TIMEZONE_DECL_LONG_CONST("DISPLAY_SHORT_COMMONLY_USED", TimeZone::SHORT_COMMONLY_USED);
+-	TIMEZONE_DECL_LONG_CONST("DISPLAY_GENERIC_LOCATION", TimeZone::GENERIC_LOCATION);
++	TIMEZONE_DECL_LONG_CONST("DISPLAY_SHORT_GENERIC", U_NAMESPACE_QUALIFIER TimeZone::SHORT_GENERIC);
++	TIMEZONE_DECL_LONG_CONST("DISPLAY_LONG_GENERIC", U_NAMESPACE_QUALIFIER TimeZone::LONG_GENERIC);
++	TIMEZONE_DECL_LONG_CONST("DISPLAY_SHORT_GMT", U_NAMESPACE_QUALIFIER TimeZone::SHORT_GMT);
++	TIMEZONE_DECL_LONG_CONST("DISPLAY_LONG_GMT", U_NAMESPACE_QUALIFIER TimeZone::LONG_GMT);
++	TIMEZONE_DECL_LONG_CONST("DISPLAY_SHORT_COMMONLY_USED", U_NAMESPACE_QUALIFIER TimeZone::SHORT_COMMONLY_USED);
++	TIMEZONE_DECL_LONG_CONST("DISPLAY_GENERIC_LOCATION", U_NAMESPACE_QUALIFIER TimeZone::GENERIC_LOCATION);
+ #endif
+ 
+ #if U_ICU_VERSION_MAJOR_NUM * 10 + U_ICU_VERSION_MINOR_NUM >= 48
+diff --git a/ext/intl/timezone/timezone_class.h b/ext/intl/timezone/timezone_class.h
+index a638f6db..0a99b6e4 100644
+--- a/ext/intl/timezone/timezone_class.h
++++ b/ext/intl/timezone/timezone_class.h
+@@ -28,7 +28,7 @@
+ #include "intl_data.h"
+ 
+ #ifndef USE_TIMEZONE_POINTER
+-typedef void TimeZone;
++typedef void U_NAMESPACE_QUALIFIER TimeZone;
+ #endif
+ 
+ typedef struct {
+@@ -38,7 +38,7 @@ typedef struct {
+ 	intl_error		err;
+ 
+ 	// ICU TimeZone
+-	const TimeZone	*utimezone;
++	const U_NAMESPACE_QUALIFIER TimeZone	*utimezone;
+ 
+ 	//whether to delete the timezone on object free
+ 	zend_bool		should_delete;
+@@ -59,10 +59,10 @@ typedef struct {
+ 		RETURN_FALSE; \
+ 	}
+ 
+-zval *timezone_convert_to_datetimezone(const TimeZone *timeZone, intl_error *outside_error, const char *func TSRMLS_DC);
+-TimeZone *timezone_process_timezone_argument(zval **zv_timezone, intl_error *error, const char *func TSRMLS_DC);
++zval *timezone_convert_to_datetimezone(const U_NAMESPACE_QUALIFIER TimeZone *timeZone, intl_error *outside_error, const char *func TSRMLS_DC);
++U_NAMESPACE_QUALIFIER TimeZone *timezone_process_timezone_argument(zval **zv_timezone, intl_error *error, const char *func TSRMLS_DC);
+ 
+-void timezone_object_construct(const TimeZone *zone, zval *object, int owned TSRMLS_DC);
++void timezone_object_construct(const U_NAMESPACE_QUALIFIER TimeZone *zone, zval *object, int owned TSRMLS_DC);
+ 
+ void timezone_register_IntlTimeZone_class(TSRMLS_D);
+ 
+diff --git a/ext/intl/timezone/timezone_methods.cpp b/ext/intl/timezone/timezone_methods.cpp
+index 9ca6b44c..958dd419 100644
+--- a/ext/intl/timezone/timezone_methods.cpp
++++ b/ext/intl/timezone/timezone_methods.cpp
+@@ -58,7 +58,7 @@ U_CFUNC PHP_FUNCTION(intltz_create_time_zone)
+ 	}
+ 
+ 	UErrorCode status = UErrorCode();
+-	UnicodeString id = UnicodeString();
++	U_NAMESPACE_QUALIFIER UnicodeString id = U_NAMESPACE_QUALIFIER UnicodeString();
+ 	if (intl_stringFromChar(id, str_id, str_id_len, &status) == FAILURE) {
+ 		intl_error_set(NULL, status,
+ 			"intltz_create_time_zone: could not convert time zone id to UTF-16", 0 TSRMLS_CC);
+@@ -66,14 +66,14 @@ U_CFUNC PHP_FUNCTION(intltz_create_time_zone)
+ 	}
+ 
+ 	//guaranteed non-null; GMT if timezone cannot be understood
+-	TimeZone *tz = TimeZone::createTimeZone(id);
++	U_NAMESPACE_QUALIFIER TimeZone *tz = U_NAMESPACE_QUALIFIER TimeZone::createTimeZone(id);
+ 	timezone_object_construct(tz, return_value, 1 TSRMLS_CC);
+ }
+ 
+ U_CFUNC PHP_FUNCTION(intltz_from_date_time_zone)
+ {
+ 	zval				*zv_timezone;
+-	TimeZone			*tz;
++	U_NAMESPACE_QUALIFIER TimeZone			*tz;
+ 	php_timezone_obj	*tzobj;
+ 	intl_error_reset(NULL TSRMLS_CC);
+ 
+@@ -111,7 +111,7 @@ U_CFUNC PHP_FUNCTION(intltz_create_default)
+ 		RETURN_NULL();
+ 	}
+ 
+-	TimeZone *tz = TimeZone::createDefault();
++	U_NAMESPACE_QUALIFIER TimeZone *tz = U_NAMESPACE_QUALIFIER TimeZone::createDefault();
+ 	timezone_object_construct(tz, return_value, 1 TSRMLS_CC);
+ }
+ 
+@@ -125,7 +125,7 @@ U_CFUNC PHP_FUNCTION(intltz_get_gmt)
+ 		RETURN_NULL();
+ 	}
+ 
+-	timezone_object_construct(TimeZone::getGMT(), return_value, 0 TSRMLS_CC);
++	timezone_object_construct(U_NAMESPACE_QUALIFIER TimeZone::getGMT(), return_value, 0 TSRMLS_CC);
+ }
+ 
+ #if U_ICU_VERSION_MAJOR_NUM >= 49
+@@ -139,14 +139,14 @@ U_CFUNC PHP_FUNCTION(intltz_get_unknown)
+ 		RETURN_NULL();
+ 	}
+ 
+-	timezone_object_construct(&TimeZone::getUnknown(), return_value, 0 TSRMLS_CC);
++	timezone_object_construct(&U_NAMESPACE_QUALIFIER TimeZone::getUnknown(), return_value, 0 TSRMLS_CC);
+ }
+ #endif
+ 
+ U_CFUNC PHP_FUNCTION(intltz_create_enumeration)
+ {
+ 	zval				**arg = NULL;
+-	StringEnumeration	*se	  = NULL;
++	U_NAMESPACE_QUALIFIER StringEnumeration	*se	  = NULL;
+ 	intl_error_reset(NULL TSRMLS_CC);
+ 
+ 	/* double indirection to have the zend engine destroy the new zval that
+@@ -158,7 +158,7 @@ U_CFUNC PHP_FUNCTION(intltz_create_enumeration)
+ 	}
+ 
+ 	if (arg == NULL || Z_TYPE_PP(arg) == IS_NULL) {
+-		se = TimeZone::createEnumeration();
++		se = U_NAMESPACE_QUALIFIER TimeZone::createEnumeration();
+ 	} else if (Z_TYPE_PP(arg) == IS_LONG) {
+ int_offset:
+ 		if (Z_LVAL_PP(arg) < (long)INT32_MIN ||
+@@ -167,7 +167,7 @@ int_offset:
+ 				"intltz_create_enumeration: value is out of range", 0 TSRMLS_CC);
+ 			RETURN_FALSE;
+ 		} else {
+-			se = TimeZone::createEnumeration((int32_t) Z_LVAL_PP(arg));
++			se = U_NAMESPACE_QUALIFIER TimeZone::createEnumeration((int32_t) Z_LVAL_PP(arg));
+ 		}
+ 	} else if (Z_TYPE_PP(arg) == IS_DOUBLE) {
+ double_offset:
+@@ -192,7 +192,7 @@ double_offset:
+ 			goto int_offset;
+ 		}
+ 		/* else call string version */
+-		se = TimeZone::createEnumeration(Z_STRVAL_PP(arg));
++		se = U_NAMESPACE_QUALIFIER TimeZone::createEnumeration(Z_STRVAL_PP(arg));
+ 	} else {
+ 		intl_error_set(NULL, U_ILLEGAL_ARGUMENT_ERROR,
+ 			"intltz_create_enumeration: invalid argument type", 0 TSRMLS_CC);
+@@ -222,14 +222,14 @@ U_CFUNC PHP_FUNCTION(intltz_count_equivalent_ids)
+ 	}
+ 
+ 	UErrorCode status = UErrorCode();
+-	UnicodeString id = UnicodeString();
++	U_NAMESPACE_QUALIFIER UnicodeString id = U_NAMESPACE_QUALIFIER UnicodeString();
+ 	if (intl_stringFromChar(id, str_id, str_id_len, &status) == FAILURE) {
+ 		intl_error_set(NULL, status,
+ 			"intltz_count_equivalent_ids: could not convert time zone id to UTF-16", 0 TSRMLS_CC);
+ 		RETURN_FALSE;
+ 	}
+ 
+-	int32_t result = TimeZone::countEquivalentIDs(id);
++	int32_t result = U_NAMESPACE_QUALIFIER TimeZone::countEquivalentIDs(id);
+ 	RETURN_LONG((long)result);
+ }
+ 
+@@ -279,9 +279,9 @@ U_CFUNC PHP_FUNCTION(intltz_create_time_zone_id_enumeration)
+ 		} //else leave offsetp NULL
+ 	}
+ 
+-	StringEnumeration *se;
++	U_NAMESPACE_QUALIFIER StringEnumeration *se;
+ 	UErrorCode uec = UErrorCode();
+-	se = TimeZone::createTimeZoneIDEnumeration((USystemTimeZoneType)zoneType,
++	se = U_NAMESPACE_QUALIFIER TimeZone::createTimeZoneIDEnumeration((USystemTimeZoneType)zoneType,
+ 		region, offsetp, uec);
+ 	INTL_CHECK_STATUS(uec, "intltz_create_time_zone_id_enumeration: "
+ 		"Error obtaining time zone id enumeration")
+@@ -305,16 +305,16 @@ U_CFUNC PHP_FUNCTION(intltz_get_canonical_id)
+ 	}
+ 
+ 	UErrorCode status = UErrorCode();
+-	UnicodeString id;
++	U_NAMESPACE_QUALIFIER UnicodeString id;
+ 	if (intl_stringFromChar(id, str_id, str_id_len, &status) == FAILURE) {
+ 		intl_error_set(NULL, status,
+ 			"intltz_get_canonical_id: could not convert time zone id to UTF-16", 0 TSRMLS_CC);
+ 		RETURN_FALSE;
+ 	}
+ 
+-	UnicodeString result;
++	U_NAMESPACE_QUALIFIER UnicodeString result;
+ 	UBool isSystemID;
+-	TimeZone::getCanonicalID(id, result, isSystemID, status);
++	U_NAMESPACE_QUALIFIER TimeZone::getCanonicalID(id, result, isSystemID, status);
+ 	INTL_CHECK_STATUS(status, "intltz_get_canonical_id: error obtaining canonical ID");
+ 	
+ 	intl_convert_utf16_to_utf8(&Z_STRVAL_P(return_value), &Z_STRLEN_P(return_value),
+@@ -345,14 +345,14 @@ U_CFUNC PHP_FUNCTION(intltz_get_region)
+ 	}
+ 
+ 	UErrorCode status = UErrorCode();
+-	UnicodeString id;
++	U_NAMESPACE_QUALIFIER UnicodeString id;
+ 	if (intl_stringFromChar(id, str_id, str_id_len, &status) == FAILURE) {
+ 		intl_error_set(NULL, status,
+ 			"intltz_get_region: could not convert time zone id to UTF-16", 0 TSRMLS_CC);
+ 		RETURN_FALSE;
+ 	}
+ 
+-	int32_t region_len = TimeZone::getRegion(id, outbuf, sizeof(outbuf), status);
++	int32_t region_len = U_NAMESPACE_QUALIFIER TimeZone::getRegion(id, outbuf, sizeof(outbuf), status);
+ 	INTL_CHECK_STATUS(status, "intltz_get_region: Error obtaining region");
+ 
+ 	RETURN_STRINGL(outbuf, region_len, 1);
+@@ -370,7 +370,7 @@ U_CFUNC PHP_FUNCTION(intltz_get_tz_data_version)
+ 	}
+ 
+ 	UErrorCode status = UErrorCode();
+-	const char *res = TimeZone::getTZDataVersion(status);
++	const char *res = U_NAMESPACE_QUALIFIER TimeZone::getTZDataVersion(status);
+ 	INTL_CHECK_STATUS(status, "intltz_get_tz_data_version: "
+ 		"Error obtaining time zone data version");
+ 
+@@ -393,14 +393,14 @@ U_CFUNC PHP_FUNCTION(intltz_get_equivalent_id)
+ 	}
+ 
+ 	UErrorCode status = UErrorCode();
+-	UnicodeString id;
++	U_NAMESPACE_QUALIFIER UnicodeString id;
+ 	if (intl_stringFromChar(id, str_id, str_id_len, &status) == FAILURE) {
+ 		intl_error_set(NULL, status,
+ 			"intltz_get_equivalent_id: could not convert time zone id to UTF-16", 0 TSRMLS_CC);
+ 		RETURN_FALSE;
+ 	}
+ 
+-	const UnicodeString result = TimeZone::getEquivalentID(id, (int32_t)index);
++	const U_NAMESPACE_QUALIFIER UnicodeString result = U_NAMESPACE_QUALIFIER TimeZone::getEquivalentID(id, (int32_t)index);
+ 	intl_convert_utf16_to_utf8(&Z_STRVAL_P(return_value), &Z_STRLEN_P(return_value),
+ 		result.getBuffer(), result.length(), &status);
+ 	INTL_CHECK_STATUS(status, "intltz_get_equivalent_id: "
+@@ -421,7 +421,7 @@ U_CFUNC PHP_FUNCTION(intltz_get_id)
+ 
+ 	TIMEZONE_METHOD_FETCH_OBJECT;
+ 
+-	UnicodeString id_us;
++	U_NAMESPACE_QUALIFIER UnicodeString id_us;
+ 	to->utimezone->getID(id_us);
+ 
+ 	char *id = NULL;
+@@ -523,19 +523,19 @@ U_CFUNC PHP_FUNCTION(intltz_has_same_rules)
+ 	RETURN_BOOL(to->utimezone->hasSameRules(*other_to->utimezone));
+ }
+ 
+-static const TimeZone::EDisplayType display_types[] = {
+-	TimeZone::SHORT,				TimeZone::LONG,
++static const U_NAMESPACE_QUALIFIER TimeZone::EDisplayType display_types[] = {
++	U_NAMESPACE_QUALIFIER TimeZone::SHORT,				U_NAMESPACE_QUALIFIER TimeZone::LONG,
+ #if U_ICU_VERSION_MAJOR_NUM * 10 + U_ICU_VERSION_MINOR_NUM >= 44
+-	TimeZone::SHORT_GENERIC,		TimeZone::LONG_GENERIC,
+-	TimeZone::SHORT_GMT,			TimeZone::LONG_GMT,
+-	TimeZone::SHORT_COMMONLY_USED,	TimeZone::GENERIC_LOCATION
++	U_NAMESPACE_QUALIFIER TimeZone::SHORT_GENERIC,		U_NAMESPACE_QUALIFIER TimeZone::LONG_GENERIC,
++	U_NAMESPACE_QUALIFIER TimeZone::SHORT_GMT,			U_NAMESPACE_QUALIFIER TimeZone::LONG_GMT,
++	U_NAMESPACE_QUALIFIER TimeZone::SHORT_COMMONLY_USED,	U_NAMESPACE_QUALIFIER TimeZone::GENERIC_LOCATION
+ #endif
+ };
+ 
+ U_CFUNC PHP_FUNCTION(intltz_get_display_name)
+ {
+ 	zend_bool	daylight		= 0;
+-	long		display_type	= TimeZone::LONG;
++	long		display_type	= U_NAMESPACE_QUALIFIER TimeZone::LONG;
+ 	const char	*locale_str		= NULL;
+ 	int			dummy			= 0;
+ 	TIMEZONE_METHOD_INIT_VARS;
+@@ -565,9 +565,9 @@ U_CFUNC PHP_FUNCTION(intltz_get_display_name)
+ 
+ 	TIMEZONE_METHOD_FETCH_OBJECT;
+ 
+-	UnicodeString result;
+-	to->utimezone->getDisplayName((UBool)daylight, (TimeZone::EDisplayType)display_type,
+-		Locale::createFromName(locale_str), result);
++	U_NAMESPACE_QUALIFIER UnicodeString result;
++	to->utimezone->getDisplayName((UBool)daylight, (U_NAMESPACE_QUALIFIER TimeZone::EDisplayType)display_type,
++		U_NAMESPACE_QUALIFIER Locale::createFromName(locale_str), result);
+ 
+ 	intl_convert_utf16_to_utf8(&Z_STRVAL_P(return_value), &Z_STRLEN_P(return_value),
+ 		result.getBuffer(), result.length(), TIMEZONE_ERROR_CODE_P(to));
